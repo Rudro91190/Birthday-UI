@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
+import { MusicButton } from "./MusicPlayer";
 
 const CHAPTERS = [
   { label: "I · LAKE", progress: 0.05 },
@@ -77,8 +78,11 @@ export function ChapterHUD() {
           <span className="truncate">oishi · a little universe</span>
         </div>
 
-        {/* Clickable chapter switcher */}
-        <div ref={menuRef} className="pointer-events-auto relative flex shrink-0 items-center gap-1.5 sm:gap-3">
+        {/* Right side controls: Music button + Clickable chapter switcher */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
+          <MusicButton />
+
+          <div ref={menuRef} className="pointer-events-auto relative flex shrink-0 items-center gap-1.5 sm:gap-3">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="flex items-center gap-1.5 rounded-full border border-[var(--rose-gold)]/30 bg-black/40 px-2.5 py-1 text-[var(--cream)] transition-all hover:border-[var(--rose-gold)] hover:bg-black/60 active:scale-95"
@@ -123,6 +127,7 @@ export function ChapterHUD() {
               ))}
             </motion.div>
           )}
+          </div>
         </div>
       </div>
 

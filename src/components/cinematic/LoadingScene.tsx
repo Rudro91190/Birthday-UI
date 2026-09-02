@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Petals } from "./Petals";
 import { Particles } from "./Particles";
 import { Lotus } from "./Lotus";
+import { MusicButton } from "./MusicPlayer";
 
 interface LoadingSceneProps {
   onComplete: () => void;
@@ -49,6 +50,11 @@ export function LoadingScene({ onComplete }: LoadingSceneProps) {
             className="absolute inset-0 opacity-90"
             style={{ background: "var(--gradient-night)" }}
           />
+
+          {/* Music Controller in Loading Screen */}
+          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 safe-top safe-right">
+            <MusicButton />
+          </div>
 
           {step >= 1 && <Particles count={80} />}
           {step >= 1 && <Petals count={14} slow={1.3} />}

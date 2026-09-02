@@ -10,6 +10,7 @@ import { SceneFinale } from "@/components/cinematic/SceneFinale";
 import { SceneEnding } from "@/components/cinematic/SceneEnding";
 import { DreamVoid } from "@/components/cinematic/DreamVoid";
 import { ChapterHUD } from "@/components/cinematic/ChapterHUD";
+import { MusicProvider } from "@/components/cinematic/MusicPlayer";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -179,12 +180,13 @@ function Index() {
   }, [scrollYProgress, entered]);
 
   return (
-    <main
-      ref={containerRef}
-      className={`relative w-full bg-[var(--night)] text-[var(--cream)] overflow-x-hidden ${entered ? "h-[750vh]" : "h-screen overflow-hidden"
-        }`}
-    >
-      {!entered && <LoadingScene onComplete={() => setEntered(true)} />}
+    <MusicProvider>
+      <main
+        ref={containerRef}
+        className={`relative w-full bg-[var(--night)] text-[var(--cream)] overflow-x-hidden ${entered ? "h-[750vh]" : "h-screen overflow-hidden"
+          }`}
+      >
+        {!entered && <LoadingScene onComplete={() => setEntered(true)} />}
 
       {entered && (
         <div
@@ -323,6 +325,7 @@ function Index() {
           )}
         </div>
       )}
-    </main>
+      </main>
+    </MusicProvider>
   );
 }
