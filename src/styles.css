@@ -98,6 +98,9 @@
     overflow-x: hidden;
     /* Reduce scroll jank globally */
     scroll-behavior: auto;
+    /* Prevent text inflation on mobile */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
   @media (max-width: 640px) {
     body { font-size: 16px; }
@@ -194,3 +197,26 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: oklch(0.86 0.08 0 / 0.3); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: oklch(0.86 0.08 0 / 0.55); }
+
+/* --- Utility: hide scrollbar while keeping scroll functionality --- */
+.scrollbar-none {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE/Edge */
+}
+.scrollbar-none::-webkit-scrollbar { display: none; } /* Chrome/Safari/Opera */
+
+/* --- Safe-area padding for iPhone notch / Dynamic Island --- */
+.safe-top    { padding-top:    env(safe-area-inset-top,    0px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.safe-left   { padding-left:   env(safe-area-inset-left,   0px); }
+.safe-right  { padding-right:  env(safe-area-inset-right,  0px); }
+
+/* --- Touch-action utilities --- */
+.touch-pan-x  { touch-action: pan-x; }
+.touch-pan-y  { touch-action: pan-y; }
+.touch-none   { touch-action: none; }
+
+/* --- Prevent tap highlight on interactive elements on iOS --- */
+@media (pointer: coarse) {
+  button, [role="button"] { -webkit-tap-highlight-color: transparent; }
+}

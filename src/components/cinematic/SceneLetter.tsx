@@ -31,8 +31,8 @@ interface LetterKeepsake {
   tag: string;
   note: string;
   rot: number;
-  xOffset?: number; // Organic horizontal drift offset in px
-  ySpacing?: number; // Organic vertical margin offset in px
+  xOffset?: number;
+  ySpacing?: number;
 }
 
 const KEEPSAKES: LetterKeepsake[] = [
@@ -75,7 +75,7 @@ const KEEPSAKES: LetterKeepsake[] = [
     title: "Cinema Nights & Smiles",
     subtitle: "Star Cineplex · Movie Date",
     tag: "Favorite Adventures",
-    note: "Ticket stubs may fade, but the sheer joy of standing beside you before the curtains rise never will. Here’s to a lifetime of late-night movies, shared popcorn, and endless laughter echoing in dark theaters.",
+    note: "Ticket stubs may fade, but the sheer joy of standing beside you before the curtains rise never will. Here's to a lifetime of late-night movies, shared popcorn, and endless laughter echoing in dark theaters.",
     rot: 5,
     xOffset: -10,
     ySpacing: 22,
@@ -119,7 +119,7 @@ const KEEPSAKES: LetterKeepsake[] = [
     title: "Under Night Stadium Lights",
     subtitle: "Game Night Lights · Match Day",
     tag: "Unstoppable Duo",
-    note: "Two thumbs up, shared team cheers, and unforgettable midnight energy. No matter the score or the crowd, every game night is a victory simply because I’m experiencing it with you.",
+    note: "Two thumbs up, shared team cheers, and unforgettable midnight energy. No matter the score or the crowd, every game night is a victory simply because I'm experiencing it with you.",
     rot: 4,
     xOffset: -8,
     ySpacing: 22,
@@ -141,7 +141,7 @@ const KEEPSAKES: LetterKeepsake[] = [
     title: "Before the Screen Lights Up",
     subtitle: "Cinema Hall · Dimmed Lights",
     tag: "Quiet Excitement",
-    note: "Waiting in the plush seats as the theater slowly darkens. The best part of every movie has never been on the screen—it’s turning to my side and sharing whispered jokes with you.",
+    note: "Waiting in the plush seats as the theater slowly darkens. The best part of every movie has never been on the screen—it's turning to my side and sharing whispered jokes with you.",
     rot: 3,
     xOffset: 10,
     ySpacing: 24,
@@ -244,8 +244,8 @@ const LETTER = [
 
 /**
  * Chapter 4 — The Letter:
- * Centered letter in the middle.
- * All 12 photos floating randomly on BOTH sides without interfering or overlapping the letter.
+ * Mobile: keepsake strip → letter paper card → lightbox
+ * Desktop: letter flanked by absolutely-positioned photo panels
  */
 export function SceneLetter() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -306,7 +306,7 @@ export function SceneLetter() {
   };
 
   return (
-    <section className="relative min-h-[190vh] overflow-hidden pb-44">
+    <section className="relative pb-32" style={{ minHeight: "100vh" }}>
       {/* Warm room atmospheric background */}
       <div
         className="absolute inset-0"
@@ -368,124 +368,172 @@ export function SceneLetter() {
       <Petals count={5} slow={1.6} />
 
       {/* Chapter Title Header */}
-      <div className="relative z-10 pt-20 text-center px-6">
+      <div className="relative z-10 pt-16 sm:pt-20 text-center px-4 sm:px-6">
         <p className="text-xs font-light uppercase tracking-[0.5em] text-[var(--rose-gold)]/85">
           Chapter Four
         </p>
-        <h2 className="mt-2.5 font-display text-[clamp(2.2rem,5vw,4.2rem)] font-light text-gold-shine animate-shimmer">
+        <h2 className="mt-2.5 font-display text-[clamp(2rem,5vw,4.2rem)] font-light text-gold-shine animate-shimmer">
           The Letter
         </h2>
         <p className="mt-1.5 text-xs sm:text-sm font-light italic tracking-wider text-[var(--cream)]/75">
-          A heartfelt letter surrounded by memories drifting softly in both sides
+          A heartfelt letter surrounded by memories drifting softly on both sides
         </p>
       </div>
 
+      {/* ── MOBILE LAYOUT ── */}
+      <div className="lg:hidden relative z-10 mx-auto mt-6 w-full max-w-lg px-4">
+        {/* Keepsake horizontal strip */}
+        <p className="text-center font-mono text-[10px] tracking-widest text-[var(--rose-gold)]/80 uppercase mb-3">
+          ✦ {KEEPSAKES.length} Keepsakes · Tap to read note ✦
+        </p>
+        <div className="flex gap-3 overflow-x-auto pb-4 pt-1 scrollbar-none px-2" style={{ touchAction: "pan-x" }}>
+          {KEEPSAKES.map((photo, idx) => (
+            <FloatingPolaroidCard
+              key={photo.id}
+              photo={photo}
+              idx={idx}
+              className="w-[105px] shrink-0"
+              onClick={() => setSelectedIndex(idx)}
+            />
+          ))}
+        </div>
 
-
-      {/* --- Layout: Absolutely-bounded side photo panels flanking the letter --- */}
-      <div className="relative z-10 mx-auto mt-8 w-full max-w-[1440px] px-4 sm:px-6">
-
-        {/* Mobile: horizontal scrolling strip */}
-        <div className="lg:hidden mb-6">
-          <p className="text-center font-mono text-[10px] tracking-widest text-[var(--rose-gold)]/80 uppercase mb-3">
-            ✦ {KEEPSAKES.length} Keepsakes · Tap to read note ✦
-          </p>
-          <div className="flex gap-3 overflow-x-auto pb-4 pt-1 scrollbar-none px-2">
-            {KEEPSAKES.map((photo, idx) => (
-              <FloatingPolaroidCard
-                key={photo.id}
-                photo={photo}
-                idx={idx}
-                className="w-[105px] shrink-0"
-                onClick={() => setSelectedIndex(idx)}
-              />
+        {/* ── THE LETTER — Mobile Paper Card ── */}
+        {/* NOTE: whileInView does NOT work inside overflow-y-auto; using animate directly */}
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="relative mt-6 mb-10 rounded-sm shadow-2xl"
+          style={{
+            background: "linear-gradient(180deg, oklch(0.95 0.04 80) 0%, oklch(0.90 0.05 70) 100%)",
+            boxShadow: "0 30px 70px -15px oklch(0 0 0 / 0.75), inset 0 0 50px oklch(0.84 0.09 55 / 0.18)",
+            color: "oklch(0.25 0.06 30)",
+          }}
+        >
+          {/* Paper texture lines */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.06] rounded-sm"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(0deg, oklch(0.25 0.06 30) 0 1px, transparent 1px 26px)",
+            }}
+          />
+          <div className="relative px-5 py-7 space-y-3">
+            {LETTER.map((line, i) => (
+              <motion.p
+                key={i}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.55, delay: 0.5 + i * 0.07, ease: "easeOut" }}
+                className={`font-script leading-relaxed ${
+                  line === ""
+                    ? "h-2"
+                    : i === 0
+                    ? "text-[1.55rem] text-[oklch(0.20_0.08_25)] font-semibold"
+                    : "text-[1.1rem]"
+                }`}
+              >
+                {line || "\u00A0"}
+              </motion.p>
             ))}
           </div>
-        </div>
-
-        {/* Desktop: letter flanked by absolutely-positioned photo panels */}
-        <div className="hidden lg:block relative">
-          {/* The letter sits in the center and sets the height of this container */}
-          <div className="flex justify-center">
-            <div className="w-full max-w-[520px] xl:max-w-[560px] shrink-0 relative z-10">
-              <motion.div
-                initial={{ opacity: 0, y: 40, rotateX: 15 }}
-                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-                viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
-                className="relative rounded-sm p-8 sm:p-10 md:p-12 shadow-2xl"
-                style={{
-                  background:
-                    "linear-gradient(180deg, oklch(0.95 0.04 80) 0%, oklch(0.90 0.05 70) 100%)",
-                  boxShadow:
-                    "0 40px 80px -20px oklch(0 0 0 / 0.8), inset 0 0 60px oklch(0.84 0.09 55 / 0.22)",
-                  color: "oklch(0.25 0.06 30)",
-                  transformOrigin: "top center",
-                }}
-              >
-                {/* Paper texture lines */}
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-[0.06]"
-                  style={{
-                    backgroundImage:
-                      "repeating-linear-gradient(0deg, oklch(0.25 0.06 30) 0 1px, transparent 1px 26px)",
-                  }}
-                />
-                <div className="relative space-y-3">
-                  {LETTER.map((line, i) => (
-                    <motion.p
-                      key={i}
-                      initial={{ opacity: 0, y: 6 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, amount: 0.05 }}
-                      transition={{ duration: 0.8, delay: 0.3 + i * 0.1, ease: "easeOut" }}
-                      className={`font-script leading-relaxed ${
-                        line === ""
-                          ? "h-2"
-                          : i === 0
-                          ? "text-2xl sm:text-3xl md:text-4xl text-[oklch(0.20_0.08_25)] font-semibold"
-                          : "text-lg sm:text-xl md:text-2xl"
-                      }`}
-                    >
-                      {line || "\u00A0"}
-                    </motion.p>
-                  ))}
-                </div>
-                {/* Lotus Wax Seal */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 2.8, duration: 1 }}
-                  className="absolute -bottom-6 -right-6 rounded-full bg-[var(--lotus-deep)] p-3 cursor-pointer hover:scale-110 transition-transform shadow-xl"
-                  style={{ boxShadow: "var(--glow-lotus)" }}
-                  title="Seal of the Universe"
-                >
-                  <Lotus size={38} glow={false} />
-                </motion.div>
-              </motion.div>
-            </div>
-          </div>
-
-          {/* LEFT side panel — absolutely positioned, full height of parent */}
-          <SidePhotoPanel
-            keepsakes={leftKeepsakes}
-            side="left"
-            allKeepsakes={KEEPSAKES}
-            onSelect={setSelectedIndex}
-          />
-
-          {/* RIGHT side panel — absolutely positioned, full height of parent */}
-          <SidePhotoPanel
-            keepsakes={rightKeepsakes}
-            side="right"
-            allKeepsakes={KEEPSAKES}
-            onSelect={setSelectedIndex}
-          />
-        </div>
+          {/* Lotus Wax Seal */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1.6, duration: 0.7 }}
+            className="absolute -bottom-5 -right-4 rounded-full bg-[var(--lotus-deep)] p-2.5 shadow-xl z-10"
+            style={{ boxShadow: "var(--glow-lotus)" }}
+            title="Seal of the Universe"
+          >
+            <Lotus size={30} glow={false} />
+          </motion.div>
+        </motion.div>
       </div>
 
-      {/* --- Lightbox Modal for Photo + Full Thoughtful Note with Keyboard & Arrow Navigation --- */}
+      {/* ── DESKTOP LAYOUT ── */}
+      <div className="hidden lg:block relative z-10 mx-auto mt-8 w-full max-w-[1440px] px-6">
+        {/* Letter in center */}
+        <div className="flex justify-center">
+          <div className="w-full max-w-[520px] xl:max-w-[560px] shrink-0 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 40, rotateX: 15 }}
+              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
+              transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
+              className="relative rounded-sm p-8 sm:p-10 md:p-12 shadow-2xl"
+              style={{
+                background:
+                  "linear-gradient(180deg, oklch(0.95 0.04 80) 0%, oklch(0.90 0.05 70) 100%)",
+                boxShadow:
+                  "0 40px 80px -20px oklch(0 0 0 / 0.8), inset 0 0 60px oklch(0.84 0.09 55 / 0.22)",
+                color: "oklch(0.25 0.06 30)",
+                transformOrigin: "top center",
+              }}
+            >
+              {/* Paper texture lines */}
+              <div
+                className="pointer-events-none absolute inset-0 opacity-[0.06]"
+                style={{
+                  backgroundImage:
+                    "repeating-linear-gradient(0deg, oklch(0.25 0.06 30) 0 1px, transparent 1px 26px)",
+                }}
+              />
+              <div className="relative space-y-3">
+                {LETTER.map((line, i) => (
+                  <motion.p
+                    key={i}
+                    initial={{ opacity: 0, y: 6 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.05 }}
+                    transition={{ duration: 0.8, delay: 0.3 + i * 0.1, ease: "easeOut" }}
+                    className={`font-script leading-relaxed ${
+                      line === ""
+                        ? "h-2"
+                        : i === 0
+                        ? "text-2xl sm:text-3xl md:text-4xl text-[oklch(0.20_0.08_25)] font-semibold"
+                        : "text-lg sm:text-xl md:text-2xl"
+                    }`}
+                  >
+                    {line || "\u00A0"}
+                  </motion.p>
+                ))}
+              </div>
+              {/* Lotus Wax Seal */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 2.8, duration: 1 }}
+                className="absolute -bottom-6 -right-6 rounded-full bg-[var(--lotus-deep)] p-3 cursor-pointer hover:scale-110 transition-transform shadow-xl"
+                style={{ boxShadow: "var(--glow-lotus)" }}
+                title="Seal of the Universe"
+              >
+                <Lotus size={38} glow={false} />
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* LEFT side panel */}
+        <SidePhotoPanel
+          keepsakes={leftKeepsakes}
+          side="left"
+          allKeepsakes={KEEPSAKES}
+          onSelect={setSelectedIndex}
+        />
+
+        {/* RIGHT side panel */}
+        <SidePhotoPanel
+          keepsakes={rightKeepsakes}
+          side="right"
+          allKeepsakes={KEEPSAKES}
+          onSelect={setSelectedIndex}
+        />
+      </div>
+
+      {/* ── Lightbox Modal ── */}
       <AnimatePresence>
         {currentKeepsake && selectedIndex !== null && (
           <motion.div
@@ -493,7 +541,8 @@ export function SceneLetter() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedIndex(null)}
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 p-4 sm:p-6 backdrop-blur-md"
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 p-3 sm:p-6 backdrop-blur-md"
+            style={{ paddingTop: "env(safe-area-inset-top, 12px)", paddingBottom: "env(safe-area-inset-bottom, 12px)" }}
           >
             <motion.div
               key={currentKeepsake.id}
@@ -502,11 +551,12 @@ export function SceneLetter() {
               exit={{ scale: 0.92, y: 15, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--rose-gold)]/40 bg-gradient-to-b from-[oklch(0.24_0.07_35)] to-[oklch(0.14_0.05_295)] p-5 sm:p-7 shadow-[0_30px_90px_rgba(0,0,0,0.9)] scrollbar-none"
+              className="relative w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--rose-gold)]/40 bg-gradient-to-b from-[oklch(0.24_0.07_35)] to-[oklch(0.14_0.05_295)] p-4 sm:p-7 shadow-[0_30px_90px_rgba(0,0,0,0.9)] scrollbar-none"
+              style={{ maxHeight: "calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px)" }}
             >
               {/* Header Navigation Bar */}
               <div className="flex items-center justify-between mb-4 border-b border-[var(--rose-gold)]/20 pb-2">
-                <span className="font-mono text-xs text-[var(--rose-gold)] tracking-widest uppercase">
+                <span className="font-mono text-[10px] text-[var(--rose-gold)] tracking-widest uppercase">
                   Memory {String(selectedIndex + 1).padStart(2, "0")} of {String(KEEPSAKES.length).padStart(2, "0")}
                 </span>
                 <div className="flex items-center gap-2">
@@ -534,10 +584,10 @@ export function SceneLetter() {
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row gap-6 items-center">
+              <div className="flex flex-col md:flex-row gap-5 items-start md:items-center">
                 {/* Polaroid Frame */}
                 <div
-                  className="w-full max-w-[280px] shrink-0 rounded-[4px] p-3 pb-8"
+                  className="w-full max-w-[240px] mx-auto md:mx-0 shrink-0 rounded-[4px] p-3 pb-8"
                   style={{
                     background:
                       "linear-gradient(180deg, oklch(0.97 0.02 80) 0%, oklch(0.92 0.04 70) 100%)",
@@ -566,7 +616,7 @@ export function SceneLetter() {
                   <div className="inline-block rounded-full bg-[var(--rose-gold)]/20 px-3 py-0.5 text-[10px] font-mono uppercase tracking-widest text-[var(--rose-gold)] mb-2">
                     {currentKeepsake.tag}
                   </div>
-                  <h3 className="font-display text-2xl sm:text-3xl font-light text-gold-shine">
+                  <h3 className="font-display text-xl sm:text-2xl font-light text-gold-shine">
                     {currentKeepsake.title}
                   </h3>
                   <p className="font-mono text-xs text-[var(--cream)]/60 mb-4">
@@ -577,7 +627,7 @@ export function SceneLetter() {
                     <p className="text-xs uppercase tracking-wider text-[var(--rose-gold)] font-mono mb-1.5">
                       A Thoughtful Note
                     </p>
-                    <p className="font-script text-xl sm:text-2xl leading-relaxed text-[var(--cream)]">
+                    <p className="font-script text-lg sm:text-xl leading-relaxed text-[var(--cream)]">
                       "{currentKeepsake.note}"
                     </p>
                   </div>
@@ -596,7 +646,6 @@ export function SceneLetter() {
 }
 
 // SidePhotoPanel: absolutely positions ALL photos in a 2-sub-column staggered grid
-// bounded within the letter's height. Photos keep their natural aspect ratio.
 interface SidePhotoPanelProps {
   keepsakes: LetterKeepsake[];
   side: "left" | "right";
@@ -605,7 +654,6 @@ interface SidePhotoPanelProps {
 }
 
 function SidePhotoPanel({ keepsakes, side, allKeepsakes, onSelect }: SidePhotoPanelProps) {
-  // Split into 2 sub-columns for a staggered brick layout
   const colA = keepsakes.filter((_, i) => i % 2 === 0);
   const colB = keepsakes.filter((_, i) => i % 2 === 1);
 
@@ -679,7 +727,6 @@ function SidePhotoPanel({ keepsakes, side, allKeepsakes, onSelect }: SidePhotoPa
                 transform: `translateX(-50%) rotate(${photo.rot * -0.4}deg)`,
               }}
             />
-            {/* Natural ratio — photo shows fully with zero cropping */}
             <div className="relative w-full overflow-hidden rounded-[2px]">
               <img
                 src={photo.src}
@@ -711,7 +758,6 @@ function SidePhotoPanel({ keepsakes, side, allKeepsakes, onSelect }: SidePhotoPa
 }
 
 interface FloatingPolaroidCardProps {
-
   photo: LetterKeepsake;
   idx: number;
   className?: string;
@@ -731,10 +777,9 @@ function FloatingPolaroidCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.92 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, amount: 0.1 }}
-      transition={{ duration: 0.8, delay: (idx % 4) * 0.12 }}
+      initial={{ opacity: 0, y: 16, scale: 0.92 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.6, delay: idx * 0.06, ease: [0.22, 1, 0.36, 1] }}
       className={`relative cursor-pointer group select-none ${className}`}
       onClick={onClick}
     >

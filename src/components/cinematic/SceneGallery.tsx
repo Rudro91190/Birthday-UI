@@ -128,61 +128,97 @@ const EXPLODED_POINTS = PHOTOS.map((_, i) => {
 export function SceneGallery() {
   const [active, setActive] = useState<number | null>(null);
   const [isExploded, setIsExploded] = useState(false);
-  const [angleY, setAngleY] = useState(0);
-  const [angleX, setAngleX] = useState(-5);
   const [isDragging, setIsDragging] = useState(false);
-  const [autoRotate, setAutoRotate] = useState(true);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  const dragStartRef = useRef({ x: 0, y: 0, angleX: 0, angleY: 0, time: 0, captured: false });
-  const animRef = useRef<number>(0);
+  // ── Fix: store angles in refs to avoid stale closure / duplicate-RAF glitch ──
+  const angleXRef = useRef(-5);
+  const angleYRef = useRef(0);
+  const autoRotateRef = useRef(true);
+  const isDraggingRef = useRef(false);
+  const hoveredRef = useRef<number | null>(null);
+  const isExplodedRef = useRef(false);
 
-  // Monitor resize for mobile styles
+  // Mirror state → refs so RAF always reads latest value without re-running effect
+  const [renderAngles, setRenderAngles] = useState({ x: -5, y: 0 });
+
+  const animRef = useRef<number>(0);
+  const lastTimeRef = useRef<number>(0);
+
+  const dragStartRef = useRef({ x: 0, y: 0, angleX: 0, angleY: 0, time: 0, captured: false });
+
+  // Keep isExploded ref in sync
   useEffect(() => {
+    isExplodedRef.current = isExploded;
+  }, [isExploded]);
+
+  // Keep hovered ref in sync
+  useEffect(() => {
+    hoveredRef.current = hoveredIdx;
+  }, [hoveredIdx]);
+
+  // Monitor resize for mobile styles — debounced to avoid rapid state spam
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setIsMobile(window.innerWidth < 768);
+      }, 80);
     };
     handleResize();
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timeout);
+    };
   }, []);
 
-  // Auto-rotation animation loop (pauses during explosion)
+  // Single persistent RAF loop — never re-created, reads from refs
   useEffect(() => {
-    if (!autoRotate || isDragging || hoveredIdx !== null || isExploded) return;
-    let lastTime = performance.now();
     const tick = (time: number) => {
-      const dt = (time - lastTime) / 1000;
-      lastTime = time;
-      setAngleY((y) => y + dt * 10);
-      setAngleX((x) => x + Math.sin(time / 2000) * dt * 2);
+      if (!lastTimeRef.current) lastTimeRef.current = time;
+      const dt = Math.min((time - lastTimeRef.current) / 1000, 0.05); // cap dt to prevent jumps
+      lastTimeRef.current = time;
+
+      if (autoRotateRef.current && !isDraggingRef.current && hoveredRef.current === null && !isExplodedRef.current) {
+        angleYRef.current += dt * 10;
+        angleXRef.current += Math.sin(time / 2000) * dt * 2;
+        setRenderAngles({ x: angleXRef.current, y: angleYRef.current });
+      }
+
       animRef.current = requestAnimationFrame(tick);
     };
+
     animRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animRef.current);
-  }, [autoRotate, isDragging, hoveredIdx, isExploded]);
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      lastTimeRef.current = 0;
+    };
+  }, []); // ← empty deps — one persistent loop, uses refs only
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (isExploded) return;
+      if (isExplodedRef.current) return;
+      isDraggingRef.current = true;
+      autoRotateRef.current = false;
       setIsDragging(true);
-      setAutoRotate(false);
       dragStartRef.current = {
         x: e.clientX,
         y: e.clientY,
-        angleX: angleX,
-        angleY: angleY,
+        angleX: angleXRef.current,
+        angleY: angleYRef.current,
         time: Date.now(),
         captured: false,
       };
     },
-    [angleX, angleY, isExploded],
+    [],
   );
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!isDragging || isExploded) return;
+      if (!isDraggingRef.current || isExplodedRef.current) return;
       const dx = e.clientX - dragStartRef.current.x;
       const dy = e.clientY - dragStartRef.current.y;
 
@@ -198,13 +234,15 @@ export function SceneGallery() {
       }
 
       const sensitivity = isMobile ? 0.35 : 0.22;
-      setAngleY(dragStartRef.current.angleY - dx * sensitivity);
-      setAngleX(dragStartRef.current.angleX - dy * sensitivity);
+      angleYRef.current = dragStartRef.current.angleY - dx * sensitivity;
+      angleXRef.current = dragStartRef.current.angleX - dy * sensitivity;
+      setRenderAngles({ x: angleXRef.current, y: angleYRef.current });
     },
-    [isDragging, isMobile, isExploded],
+    [isMobile],
   );
 
   const onPointerUp = useCallback((e: React.PointerEvent) => {
+    isDraggingRef.current = false;
     setIsDragging(false);
     if (dragStartRef.current.captured) {
       const target = e.currentTarget as HTMLElement;
@@ -212,7 +250,11 @@ export function SceneGallery() {
         target.releasePointerCapture(e.pointerId);
       }
     }
-    setTimeout(() => setAutoRotate(true), 3500);
+    const resumeTimeout = setTimeout(() => {
+      autoRotateRef.current = true;
+      lastTimeRef.current = 0; // reset dt to prevent a jump on resume
+    }, 3500);
+    return () => clearTimeout(resumeTimeout);
   }, []);
 
   // Select item only on click (no significant drag movement)
@@ -220,18 +262,18 @@ export function SceneGallery() {
     const dx = Math.abs(e.clientX - dragStartRef.current.x);
     const dy = Math.abs(e.clientY - dragStartRef.current.y);
     const dt = Date.now() - dragStartRef.current.time;
-    if ((isExploded || (dx < 5 && dy < 5 && dt < 280))) {
+    if ((isExplodedRef.current || (dx < 5 && dy < 5 && dt < 280))) {
       setActive(globalIdx);
     }
-  }, [isExploded]);
+  }, []);
 
   // Compute 3D positions mapped to 2D screen coordinate values
-  const sphereRadius = isMobile ? 140 : 250;
-  const cardW = isMobile ? 85 : 120;
-  const cardH = isMobile ? 110 : 155;
+  const sphereRadius = isMobile ? 130 : 250;
+  const cardW = isMobile ? 78 : 120;
+  const cardH = isMobile ? 100 : 155;
 
-  const radX = (angleX * Math.PI) / 180;
-  const radY = (angleY * Math.PI) / 180;
+  const radX = (renderAngles.x * Math.PI) / 180;
+  const radY = (renderAngles.y * Math.PI) / 180;
 
   const cards = SPHERE_POINTS.map((p) => {
     // 3D rotation math around Y-axis
@@ -279,21 +321,24 @@ export function SceneGallery() {
       <Petals count={14} />
 
       {/* Heading */}
-      <div className="relative z-10 text-center px-6">
+      <div className="relative z-10 text-center px-4 sm:px-6">
         <p className="text-xs font-light uppercase tracking-[0.5em] text-[var(--lotus)]/70">Chapter Two</p>
-        <h2 className="mt-4 font-display text-[clamp(2rem,6vw,4.5rem)] font-light text-lotus-shine">
+        <h2 className="mt-4 font-display text-[clamp(1.8rem,6vw,4.5rem)] font-light text-lotus-shine">
           Memory Gallery
         </h2>
         <p className="mx-auto mt-4 max-w-xl font-display text-sm italic text-[var(--cream)]/70 md:text-base">
-          spin the sphere — every memory has a story.
+          {isMobile ? "drag to spin · tap to reveal · explode to scatter" : "spin the sphere — every memory has a story."}
         </p>
 
         {/* Explode / Revolve Toggle Button */}
-        <div className="mt-6 flex justify-center items-center">
+        <div className="mt-5 flex justify-center items-center">
           <motion.button
             whileHover={{ scale: 1.06 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setIsExploded((prev) => !prev)}
+            onClick={() => {
+              setIsExploded((prev) => !prev);
+              isExplodedRef.current = !isExplodedRef.current;
+            }}
             className="group relative inline-flex items-center gap-2.5 rounded-full px-5 py-2.5 text-xs font-mono tracking-[0.25em] uppercase transition-all duration-300 backdrop-blur-md cursor-pointer"
             style={{
               background: isExploded
@@ -320,10 +365,13 @@ export function SceneGallery() {
 
       {/* Revolve / Explode Container */}
       <div
-        className="relative z-10 mx-auto mt-10 select-none flex justify-center items-center transition-all duration-700"
+        className="relative z-10 mx-auto mt-8 select-none flex justify-center items-center transition-all duration-700"
         style={{
-          height: isExploded ? "min(82vh, 680px)" : "min(72vh, 560px)",
+          height: isExploded
+            ? isMobile ? "min(75vh, 520px)" : "min(82vh, 680px)"
+            : isMobile ? "min(65vh, 440px)" : "min(72vh, 560px)",
           cursor: isExploded ? "default" : isDragging ? "grabbing" : "grab",
+          touchAction: isExploded ? "auto" : "none", // prevent scroll hijack during sphere drag
         }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -338,13 +386,13 @@ export function SceneGallery() {
 
           // Exploded position calculations
           const exp = EXPLODED_POINTS[card.globalIdx];
-          const spreadX = isMobile ? 175 : 460;
-          const spreadY = isMobile ? 220 : 255;
+          const spreadX = isMobile ? 155 : 460;
+          const spreadY = isMobile ? 195 : 255;
           const explodeX = exp.cosAngle * spreadX * exp.rRatio + exp.jitterX;
           const explodeY = exp.sinAngle * spreadY * exp.rRatio + exp.jitterY;
           const explodeZ = Math.round(100 + (card.globalIdx % 12) * 15);
           const explodeRot = exp.tilt;
-          const explodeScale = isMobile ? 0.72 : 0.88;
+          const explodeScale = isMobile ? 0.68 : 0.88;
 
           const currentX = isExploded ? explodeX : card.px;
           const currentY = isExploded ? explodeY : (isHovered ? card.py - 12 : card.py);
@@ -437,8 +485,8 @@ export function SceneGallery() {
         <div
           className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-opacity duration-700"
           style={{
-            width: isExploded ? 450 : 300,
-            height: isExploded ? 450 : 300,
+            width: isExploded ? (isMobile ? 280 : 450) : (isMobile ? 200 : 300),
+            height: isExploded ? (isMobile ? 280 : 450) : (isMobile ? 200 : 300),
             background: isExploded
               ? "radial-gradient(circle, oklch(0.86 0.12 340 / 0.18) 0%, oklch(0.84 0.09 55 / 0.08) 50%, transparent 70%)"
               : "radial-gradient(circle, oklch(0.86 0.08 0 / 0.12) 0%, transparent 70%)",
@@ -452,10 +500,12 @@ export function SceneGallery() {
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.55 }}
-        className="relative z-10 mt-2 text-center text-[10px] uppercase tracking-[0.35em] text-[var(--cream)]/60 font-light"
+        className="relative z-10 mt-2 text-center text-[10px] uppercase tracking-[0.35em] text-[var(--cream)]/60 font-light px-4"
       >
         {isExploded
-          ? "✦ scattered galaxy · click card to view · click button to revolve"
+          ? "✦ scattered galaxy · tap card to view · tap button to revolve"
+          : isMobile
+          ? "drag to spin · tap to reveal"
           : "drag to spin · hover to focus · click to reveal · explode to scatter"}
       </motion.p>
 
@@ -484,7 +534,7 @@ export function SceneGallery() {
               onClick={(e) => e.stopPropagation()}
             >
               <div
-                className="rounded-[3px] bg-[#fdfbf7] p-3.5 pb-10 sm:p-4.5 sm:pb-14 flex flex-col overflow-hidden"
+                className="rounded-[3px] bg-[#fdfbf7] p-3.5 pb-10 flex flex-col overflow-hidden"
                 style={{
                   boxShadow: "0 30px 100px -20px oklch(0 0 0 / 0.85), 0 0 50px var(--lotus)",
                   border: "1px solid oklch(0.9 0.03 80)",
@@ -498,7 +548,7 @@ export function SceneGallery() {
                   />
                 </div>
                 <p
-                  className="mt-6 text-center font-script text-2xl sm:text-3xl text-indigo-950 px-2 select-none"
+                  className="mt-6 text-center font-script text-xl sm:text-3xl text-indigo-950 px-2 select-none"
                   style={{
                     textShadow: "0 1px 1px oklch(0 0 0 / 0.05)",
                   }}
