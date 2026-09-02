@@ -79,7 +79,7 @@ export function SceneLibrary() {
   const [selectedMemory, setSelectedMemory] = useState<LibraryMemory | null>(null);
 
   return (
-    <section ref={ref} className="relative min-h-[120vh] overflow-hidden">
+    <section ref={ref} className="relative overflow-hidden" style={{ height: "100vh", maxHeight: "100vh" }}>
       {/* warm library background */}
       <div
         className="absolute inset-0"
@@ -103,25 +103,96 @@ export function SceneLibrary() {
       <Particles count={35} color="oklch(0.84 0.09 55)" />
       <Petals count={12} />
 
-      {/* chapter heading */}
-      <motion.div style={{ y }} className="relative z-10 pt-28 text-center px-6">
+      {/* chapter heading — tighter on mobile */}
+      <motion.div style={{ y }} className="relative z-10 pt-16 sm:pt-28 text-center px-6">
         <p className="text-xs font-light uppercase tracking-[0.5em] text-[var(--rose-gold)]/70">Chapter One</p>
-        <h2 className="mt-4 font-display text-[clamp(2rem,6vw,4.5rem)] font-light text-gold-shine animate-shimmer">
+        <h2 className="mt-2 sm:mt-4 font-display text-[clamp(1.8rem,6vw,4.5rem)] font-light text-gold-shine animate-shimmer">
           The Lotus Library
         </h2>
-        <p className="mx-auto mt-4 max-w-xl font-display text-sm italic text-[var(--cream)]/70 md:text-base">
+        <p className="mx-auto mt-1.5 sm:mt-4 max-w-xl font-display text-xs sm:text-sm italic text-[var(--cream)]/70 sm:text-base">
           where each chapter captures a year of grace, dreams, and memories.
         </p>
       </motion.div>
 
-      {/* Photo cards grid — compact sizing */}
-      <div className="relative z-10 mx-auto mt-14 grid max-w-5xl grid-cols-1 gap-x-6 gap-y-12 px-6 pb-28 sm:grid-cols-2 lg:grid-cols-3 justify-items-center">
+      {/* ── MOBILE: Horizontal swipe strip — no vertical scroll trap ── */}
+      <div className="sm:hidden relative z-10 mt-5">
+        <p className="text-center font-mono text-[9px] tracking-widest text-[var(--rose-gold)]/70 uppercase mb-3">
+          ✦ Swipe to browse · Tap to read ✦
+        </p>
+        <div
+          className="flex gap-4 overflow-x-auto pb-4 px-4 scrollbar-none"
+          style={{ touchAction: "pan-x pan-y", WebkitOverflowScrolling: "touch" }}
+        >
+          {MEMORIES.map((mem, i) => (
+            <motion.div
+              key={mem.year}
+              initial={{ opacity: 0, scale: 0.88 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
+              onClick={() => setSelectedMemory(mem)}
+              className="relative flex-shrink-0 cursor-pointer"
+              style={{ width: "clamp(120px, 34vw, 155px)" }}
+            >
+              {/* Polaroid card */}
+              <div
+                className="rounded-xl overflow-hidden"
+                style={{
+                  padding: "5px 5px 22px 5px",
+                  background: "linear-gradient(160deg, oklch(0.28 0.06 310) 0%, oklch(0.16 0.04 290) 100%)",
+                  boxShadow: "0 14px 28px -6px oklch(0 0 0 / 0.7), 0 0 0 1px oklch(0.84 0.09 55 / 0.35)",
+                }}
+              >
+                <div className="relative rounded-lg overflow-hidden bg-neutral-900" style={{ aspectRatio: "3/4" }}>
+                  <img
+                    src={mem.src}
+                    alt={`Memory ${mem.year}`}
+                    loading="lazy"
+                    className={`absolute inset-0 w-full h-full object-cover ${mem.imgPosition || "object-top"}`}
+                  />
+                  {/* overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ background: "linear-gradient(to bottom, transparent 60%, oklch(0.10 0.05 310 / 0.6) 100%)" }}
+                  />
+                  {/* Lotus badge */}
+                  <div className="absolute top-1.5 left-0 right-0 flex justify-center z-10">
+                    <Lotus size={14} glow={false} />
+                  </div>
+                </div>
+                {/* Year label */}
+                <div className="h-[20px] flex items-center justify-between px-2">
+                  <span className="font-display text-[8px] uppercase tracking-[0.25em] font-semibold" style={{ color: "oklch(0.84 0.09 55 / 0.95)" }}>
+                    {mem.year}
+                  </span>
+                  <span className="font-mono text-[7px] uppercase tracking-[0.1em] opacity-60 text-[var(--cream)]">
+                    Vol.0{i + 1}
+                  </span>
+                </div>
+              </div>
+              {/* subtitle below polaroid */}
+              <p className="mt-1.5 text-center font-display text-[10px] italic text-[var(--cream)]/70 truncate px-1">
+                {mem.subtitle}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+        {/* Scroll to continue hint */}
+        <motion.p
+          className="text-center font-mono text-[9px] tracking-widest text-[var(--cream)]/35 uppercase mt-3"
+          animate={{ opacity: [0.35, 0.7, 0.35] }}
+          transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+        >
+          scroll to continue ↓
+        </motion.p>
+      </div>
+
+      {/* ── DESKTOP: Vertical photo grid (unchanged) ── */}
+      <div className="hidden sm:grid relative z-10 mx-auto mt-14 max-w-5xl grid-cols-2 gap-x-6 gap-y-12 px-6 pb-28 lg:grid-cols-3 justify-items-center">
         {MEMORIES.map((mem, i) => (
           <motion.div
             key={mem.year}
             initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: (i % 3) * 0.12, ease: [0.22, 1, 0.36, 1] }}
             onHoverStart={() => setHovered(i)}
             onHoverEnd={() => setHovered(null)}
