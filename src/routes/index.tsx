@@ -90,9 +90,6 @@ function Scene3DWrapper({
           touchAction: "pan-y",
           WebkitOverflowScrolling: "touch",
           overscrollBehaviorY: "auto",
-          // Ensures when user scrolls past the scene's top/bottom it immediately
-          // propagates to the main page scroll without requiring a second tap
-          scrollBehavior: "auto",
         }}
       >
         {children}
