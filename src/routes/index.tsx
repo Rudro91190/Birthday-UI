@@ -68,7 +68,7 @@ function Scene3DWrapper({
     [-6, 0, 0, 6]
   );
 
-  const pointerEvents = useTransform(opacity, (o) => (o > 0.85 ? "auto" : "none"));
+  const pointerEvents = useTransform(opacity, (o) => (o > 0.6 ? "auto" : "none"));
 
   return (
     <motion.div
@@ -84,7 +84,14 @@ function Scene3DWrapper({
       }}
       className="absolute inset-0 w-full h-full overflow-hidden"
     >
-      <div className="w-full h-full overflow-y-auto overflow-x-hidden scrollbar-none">
+      <div
+        className="w-full h-full overflow-y-auto overflow-x-hidden scrollbar-none"
+        style={{
+          touchAction: "pan-y",
+          WebkitOverflowScrolling: "touch",
+          overscrollBehaviorY: "auto",
+        }}
+      >
         {children}
       </div>
     </motion.div>
@@ -103,7 +110,6 @@ function WhisperScene({ whisper, progress, start, end }: WhisperSceneProps) {
   const opacity = useTransform(progress, [start, mid - 0.02, mid + 0.02, end], [0, 1, 1, 0]);
   const scale = useTransform(progress, [start, mid, end], [0.85, 1, 1.2]);
   const z = useTransform(progress, [start, mid, end], [-300, 0, 300]);
-  const pointerEvents = useTransform(opacity, (o) => (o > 0.5 ? "auto" : "none"));
 
   return (
     <motion.section
@@ -111,14 +117,14 @@ function WhisperScene({ whisper, progress, start, end }: WhisperSceneProps) {
         opacity,
         scale,
         z,
-        pointerEvents,
+        pointerEvents: "none",
         transformStyle: "preserve-3d",
         willChange: "transform, opacity",
       }}
-      className="absolute inset-0 flex items-center justify-center px-6"
+      className="absolute inset-0 flex items-center justify-center px-6 pointer-events-none select-none"
     >
       <p
-        className="font-display text-center text-[clamp(1.1rem,2.6vw,1.9rem)] font-light italic text-[var(--cream)]/85"
+        className="font-display text-center text-[clamp(1.1rem,2.6vw,1.9rem)] font-light italic text-[var(--cream)]/85 pointer-events-none select-none"
         style={{
           textShadow: "0 0 40px oklch(0.86 0.08 0 / 0.5), 0 0 80px oklch(0.84 0.09 55 / 0.3)",
           letterSpacing: "0.18em",

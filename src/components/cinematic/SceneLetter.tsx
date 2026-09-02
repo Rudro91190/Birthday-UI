@@ -386,7 +386,7 @@ export function SceneLetter() {
         <p className="text-center font-mono text-[10px] tracking-widest text-[var(--rose-gold)]/80 uppercase mb-3">
           ✦ {KEEPSAKES.length} Keepsakes · Tap to read note ✦
         </p>
-        <div className="flex gap-3 overflow-x-auto pb-4 pt-1 scrollbar-none px-2" style={{ touchAction: "pan-x" }}>
+        <div className="flex gap-3 overflow-x-auto pb-4 pt-1 scrollbar-none px-2" style={{ touchAction: "pan-x pan-y" }}>
           {KEEPSAKES.map((photo, idx) => (
             <FloatingPolaroidCard
               key={photo.id}

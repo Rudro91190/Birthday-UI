@@ -222,20 +222,36 @@ export function SceneGallery() {
       const dx = e.clientX - dragStartRef.current.x;
       const dy = e.clientY - dragStartRef.current.y;
 
-      // Only capture pointer once drag exceeds threshold
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
-        if (!dragStartRef.current.captured) {
+      // If pointer is not yet captured, check if drag is horizontal (rotate) or vertical (scroll page)
+      if (!dragStartRef.current.captured) {
+        // If movement is predominantly vertical, user is scrolling the page -> don't capture!
+        if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 4) {
+          isDraggingRef.current = false;
+          setIsDragging(false);
+          return;
+        }
+
+        // If drag is predominantly horizontal, capture pointer to spin sphere
+        if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy) * 1.1) {
           const target = e.currentTarget as HTMLElement;
           if (target.setPointerCapture) {
-            target.setPointerCapture(e.pointerId);
+            try {
+              target.setPointerCapture(e.pointerId);
+            } catch (err) {
+              // Ignore
+            }
           }
           dragStartRef.current.captured = true;
+        } else {
+          return;
         }
       }
 
       const sensitivity = isMobile ? 0.35 : 0.22;
       angleYRef.current = dragStartRef.current.angleY - dx * sensitivity;
-      angleXRef.current = dragStartRef.current.angleX - dy * sensitivity;
+      if (!isMobile) {
+        angleXRef.current = dragStartRef.current.angleX - dy * sensitivity;
+      }
       setRenderAngles({ x: angleXRef.current, y: angleYRef.current });
     },
     [isMobile],
@@ -371,7 +387,7 @@ export function SceneGallery() {
             ? isMobile ? "min(75vh, 520px)" : "min(82vh, 680px)"
             : isMobile ? "min(65vh, 440px)" : "min(72vh, 560px)",
           cursor: isExploded ? "default" : isDragging ? "grabbing" : "grab",
-          touchAction: isExploded ? "auto" : "none", // prevent scroll hijack during sphere drag
+          touchAction: "pan-y", // allow natural vertical page scrolling on phone at all times
         }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
