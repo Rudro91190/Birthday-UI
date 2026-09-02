@@ -1,0 +1,196 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* --- A LITTLE UNIVERSE FOR OISHI --- */
+
+@theme inline {
+  --font-display: "Fredoka", "Quicksand", ui-rounded, system-ui, sans-serif;
+  --font-script: "Caveat", "Fredoka", ui-rounded, cursive;
+  --font-body: "Quicksand", ui-rounded, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-lotus: var(--lotus);
+  --color-lotus-deep: var(--lotus-deep);
+  --color-lavender: var(--lavender);
+  --color-rose-gold: var(--rose-gold);
+  --color-cream: var(--cream);
+  --color-moon: var(--moon);
+  --color-night: var(--night);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Dream palette */
+  --night: oklch(0.14 0.04 290);              /* deep moonlit blue-violet */
+  --night-2: oklch(0.18 0.05 310);
+  --night-3: oklch(0.22 0.06 320);
+  --lotus: oklch(0.86 0.08 0);                /* lotus pink */
+  --lotus-deep: oklch(0.72 0.14 5);
+  --lavender: oklch(0.82 0.08 305);
+  --rose-gold: oklch(0.84 0.09 55);
+  --cream: oklch(0.96 0.03 80);
+  --moon: oklch(0.97 0.02 90);
+  --peach: oklch(0.88 0.07 35);
+
+  --background: var(--night);
+  --foreground: var(--cream);
+  --card: oklch(0.20 0.05 305 / 0.6);
+  --card-foreground: var(--cream);
+  --popover: var(--night-2);
+  --popover-foreground: var(--cream);
+  --primary: var(--lotus);
+  --primary-foreground: oklch(0.18 0.04 290);
+  --secondary: var(--lavender);
+  --secondary-foreground: oklch(0.18 0.04 290);
+  --muted: oklch(0.25 0.04 300 / 0.5);
+  --muted-foreground: oklch(0.78 0.04 305);
+  --accent: var(--rose-gold);
+  --accent-foreground: oklch(0.18 0.04 290);
+  --destructive: oklch(0.68 0.18 20);
+  --destructive-foreground: var(--cream);
+  --border: oklch(0.95 0.05 320 / 0.12);
+  --input: oklch(0.95 0.05 320 / 0.15);
+  --ring: var(--lotus);
+
+  /* Reusable visual tokens */
+  --gradient-night: radial-gradient(ellipse at 50% 30%, oklch(0.28 0.07 310) 0%, oklch(0.14 0.04 290) 55%, oklch(0.08 0.03 285) 100%);
+  --gradient-dawn: linear-gradient(180deg, oklch(0.22 0.06 320) 0%, oklch(0.55 0.10 15) 60%, oklch(0.86 0.08 30) 100%);
+  --gradient-lotus: linear-gradient(135deg, var(--lotus) 0%, var(--lavender) 50%, var(--rose-gold) 100%);
+  --gradient-text-gold: linear-gradient(135deg, var(--rose-gold) 0%, var(--cream) 45%, var(--lotus) 100%);
+  --glow-lotus: 0 0 40px oklch(0.86 0.08 0 / 0.45), 0 0 80px oklch(0.86 0.08 0 / 0.25);
+  --glow-moon: 0 0 60px oklch(0.97 0.02 90 / 0.6), 0 0 160px oklch(0.97 0.02 90 / 0.25);
+  --glow-gold: 0 0 30px oklch(0.84 0.09 55 / 0.55);
+  --shadow-dream: 0 30px 80px -20px oklch(0.08 0.04 285 / 0.7);
+}
+
+.dark { color-scheme: dark; }
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body { background: var(--background); color: var(--foreground); }
+  body {
+    font-family: var(--font-body);
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    /* Reduce scroll jank globally */
+    scroll-behavior: auto;
+  }
+  @media (max-width: 640px) {
+    body { font-size: 16px; }
+  }
+  ::selection { background: oklch(0.86 0.08 0 / 0.4); color: var(--cream); }
+}
+
+/* --- Typography utilities --- */
+.font-display { font-family: var(--font-display); letter-spacing: 0.005em; }
+.font-script { font-family: var(--font-script); font-weight: 600; }
+
+.text-gold-shine {
+  background: var(--gradient-text-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-lotus-shine {
+  background: var(--gradient-lotus);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* --- Glass --- */
+.glass {
+  background: oklch(0.95 0.05 320 / 0.06);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid oklch(0.95 0.05 320 / 0.12);
+}
+
+/* --- Keyframes — all use translate3d / scale3d to stay on GPU compositor --- */
+@keyframes float-slow {
+  0%,100% { transform: translate3d(0,0,0) rotate(0deg); }
+  50%      { transform: translate3d(0,-18px,0) rotate(2deg); }
+}
+@keyframes float-petal {
+  0%   { transform: translate3d(0,-10vh,0) rotate(0deg);   opacity: 0; }
+  10%  { opacity: 1; }
+  100% { transform: translate3d(var(--drift,40px),110vh,0) rotate(360deg); opacity: 0; }
+}
+@keyframes twinkle {
+  0%,100% { opacity: .2; transform: scale3d(.85,.85,1); }
+  50%     { opacity: 1;  transform: scale3d(1.1,1.1,1); }
+}
+@keyframes shimmer { 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
+@keyframes ripple {
+  0%   { transform: scale3d(.4,.4,1); opacity: .6; }
+  100% { transform: scale3d(3,3,1);   opacity: 0; }
+}
+@keyframes write-line {
+  0%   { stroke-dashoffset: 1000; opacity: 0; }
+  10%  { opacity: 1; }
+  100% { stroke-dashoffset: 0;    opacity: 1; }
+}
+@keyframes pulse-soft {
+  0%,100% { opacity: .7; transform: scale3d(1,1,1); }
+  50%     { opacity: 1;  transform: scale3d(1.04,1.04,1); }
+}
+@keyframes drift-cloud  { 0%{transform:translate3d(-10%,0,0)} 100%{transform:translate3d(10%,0,0)} }
+@keyframes candle-flicker {
+  0%,100% { transform: scale3d(1,1,1);        opacity: .95; }
+  25%     { transform: scale3d(.95,1.08,1);   opacity: .85; }
+  50%     { transform: scale3d(1.05,.95,1);   opacity: 1;   }
+  75%     { transform: scale3d(.97,1.04,1);   opacity: .9;  }
+}
+@keyframes rain-fall {
+  0%   { transform: translate3d(0,-20%,0); }
+  100% { transform: translate3d(0,120%,0); }
+}
+@keyframes spin-slow  { from{transform:rotate3d(0,0,1,0deg)} to{transform:rotate3d(0,0,1,360deg)} }
+@keyframes confetti-burst {
+  0%   { transform: translate3d(0,0,0) rotate(0deg);   opacity: 1; }
+  100% { transform: translate3d(var(--cx,0),var(--cy,-300px),0) rotate(720deg); opacity: 0; }
+}
+@keyframes fire-glow {
+  0%,100% { filter: brightness(1); }
+  50%     { filter: brightness(1.4); }
+}
+
+.animate-float-slow { animation: float-slow 7s ease-in-out infinite; }
+.animate-twinkle { animation: twinkle 3s ease-in-out infinite; }
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 6s linear infinite;
+}
+.animate-pulse-soft { animation: pulse-soft 4s ease-in-out infinite; }
+.animate-spin-slow { animation: spin-slow 60s linear infinite; }
+.animate-candle { animation: candle-flicker 1.6s ease-in-out infinite; transform-origin: bottom; }
+
+/* fancy scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: oklch(0.86 0.08 0 / 0.3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: oklch(0.86 0.08 0 / 0.55); }
