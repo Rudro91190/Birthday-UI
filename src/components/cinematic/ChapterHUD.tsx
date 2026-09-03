@@ -3,12 +3,13 @@ import { useState, useEffect, useRef } from "react";
 import { MusicButton } from "./MusicPlayer";
 
 const CHAPTERS = [
-  { label: "I · LAKE", progress: 0.05 },
-  { label: "II · LIBRARY", progress: 0.23 },
-  { label: "III · GALLERY", progress: 0.40 },
-  { label: "IV · LETTER", progress: 0.58 },
-  { label: "V · WISH", progress: 0.78 },
-  { label: "VI · DREAM", progress: 0.95 },
+  { label: "I · LAKE", progress: 0.04 },
+  { label: "II · LIBRARY", progress: 0.20 },
+  { label: "III · GALLERY", progress: 0.37 },
+  { label: "IV · LETTER", progress: 0.54 },
+  { label: "V · REEL", progress: 0.70 },
+  { label: "VI · WISH", progress: 0.86 },
+  { label: "VII · DREAM", progress: 0.96 },
 ];
 
 /**
@@ -22,23 +23,25 @@ export function ChapterHUD() {
 
   const idx = useTransform(scrollYProgress, (v) => {
     let i = 0;
-    if (v < 0.15) i = 0;
-    else if (v < 0.33) i = 1;
-    else if (v < 0.51) i = 2;
-    else if (v < 0.69) i = 3;
-    else if (v < 0.89) i = 4;
-    else i = 5;
+    if (v < 0.12) i = 0;
+    else if (v < 0.28) i = 1;
+    else if (v < 0.45) i = 2;
+    else if (v < 0.62) i = 3;
+    else if (v < 0.78) i = 4;
+    else if (v < 0.92) i = 5;
+    else i = 6;
     return CHAPTERS[i].label;
   });
 
   const num = useTransform(scrollYProgress, (v) => {
     let i = 1;
-    if (v < 0.15) i = 1;
-    else if (v < 0.33) i = 2;
-    else if (v < 0.51) i = 3;
-    else if (v < 0.69) i = 4;
-    else if (v < 0.89) i = 5;
-    else i = 6;
+    if (v < 0.12) i = 1;
+    else if (v < 0.28) i = 2;
+    else if (v < 0.45) i = 3;
+    else if (v < 0.62) i = 4;
+    else if (v < 0.78) i = 5;
+    else if (v < 0.92) i = 6;
+    else i = 7;
     return String(i).padStart(2, "0");
   });
 

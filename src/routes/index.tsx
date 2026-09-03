@@ -7,6 +7,7 @@ import { SceneLibrary } from "@/components/cinematic/SceneLibrary";
 import { SceneGallery } from "@/components/cinematic/SceneGallery";
 import { SceneLetter } from "@/components/cinematic/SceneLetter";
 import { SceneFinale } from "@/components/cinematic/SceneFinale";
+import { SceneReel } from "@/components/cinematic/SceneReel";
 import { SceneEnding } from "@/components/cinematic/SceneEnding";
 import { DreamVoid } from "@/components/cinematic/DreamVoid";
 import { ChapterHUD } from "@/components/cinematic/ChapterHUD";
@@ -160,21 +161,23 @@ function Index() {
 
     return scrollYProgress.on("change", (v) => {
       const active: Record<number, boolean> = {};
-      active[0] = v <= 0.18;
-      active[1] = v >= 0.09 && v <= 0.20;
-      active[2] = v >= 0.13 && v <= 0.36;
-      active[3] = v >= 0.27 && v <= 0.38;
-      active[4] = v >= 0.31 && v <= 0.54;
-      active[5] = v >= 0.45 && v <= 0.56;
-      active[6] = v >= 0.49 && v <= 0.72;
-      active[7] = v >= 0.63 && v <= 0.74;
-      active[8] = v >= 0.70 && v <= 0.93;
-      active[9] = v >= 0.84 && v <= 0.95;
-      active[10] = v >= 0.88;
+      active[0] = v <= 0.16;
+      active[1] = v >= 0.07 && v <= 0.17;
+      active[2] = v >= 0.11 && v <= 0.31;
+      active[3] = v >= 0.23 && v <= 0.33;
+      active[4] = v >= 0.26 && v <= 0.49;
+      active[5] = v >= 0.40 && v <= 0.50;
+      active[6] = v >= 0.44 && v <= 0.66;
+      active[7] = v >= 0.57 && v <= 0.67;
+      active[8] = v >= 0.61 && v <= 0.83;
+      active[9] = v >= 0.74 && v <= 0.84;
+      active[10] = v >= 0.78 && v <= 0.95;
+      active[11] = v >= 0.88 && v <= 0.97;
+      active[12] = v >= 0.91;
 
       setMountedScenes((prev) => {
         let changed = false;
-        for (let i = 0; i <= 10; i++) {
+        for (let i = 0; i <= 12; i++) {
           if (!!prev[i] !== !!active[i]) {
             changed = true;
             break;
@@ -189,148 +192,172 @@ function Index() {
     <MusicProvider>
       <main
         ref={containerRef}
-        className={`relative w-full bg-[var(--night)] text-[var(--cream)] overflow-x-hidden ${entered ? "h-[750vh]" : "h-screen overflow-hidden"
-          }`}
+        className={`relative w-full bg-[var(--night)] text-[var(--cream)] overflow-x-hidden ${
+          entered ? "h-[860vh]" : "h-screen overflow-hidden"
+        }`}
       >
         {!entered && <LoadingScene onComplete={() => setEntered(true)} />}
 
-      {entered && (
-        <div
-          className="fixed inset-0 h-screen w-full overflow-hidden"
-          style={{ perspective: 1200, transformStyle: "preserve-3d" }}
-        >
-          <DreamVoid />
-          <ChapterHUD />
+        {entered && (
+          <div
+            className="fixed inset-0 h-screen w-full overflow-hidden"
+            style={{ perspective: 1200, transformStyle: "preserve-3d" }}
+          >
+            <DreamVoid />
+            <ChapterHUD />
 
-          {/* Chapter 1: SceneLake */}
-          {mountedScenes[0] && (
-            <Scene3DWrapper
-              progress={smoothProgress}
-              fadeInStart={-0.1}
-              fadeInEnd={0.0}
-              fadeOutStart={0.11}
-              fadeOutEnd={0.16}
-            >
-              <SceneLake />
-            </Scene3DWrapper>
-          )}
+            {/* Chapter 1: SceneLake */}
+            {mountedScenes[0] && (
+              <Scene3DWrapper
+                progress={smoothProgress}
+                fadeInStart={-0.1}
+                fadeInEnd={0.0}
+                fadeOutStart={0.09}
+                fadeOutEnd={0.14}
+              >
+                <SceneLake />
+              </Scene3DWrapper>
+            )}
 
-          {/* Whisper 1 */}
-          {mountedScenes[1] && (
-            <WhisperScene
-              whisper="…and the lake whispered her into a library of dreams."
-              progress={smoothProgress}
-              start={0.11}
-              end={0.18}
-            />
-          )}
+            {/* Whisper 1 */}
+            {mountedScenes[1] && (
+              <WhisperScene
+                whisper="…and the lake whispered her into a library of dreams."
+                progress={smoothProgress}
+                start={0.09}
+                end={0.15}
+              />
+            )}
 
-          {/* Chapter 2: SceneLibrary */}
-          {mountedScenes[2] && (
-            <Scene3DWrapper
-              progress={smoothProgress}
-              fadeInStart={0.15}
-              fadeInEnd={0.18}
-              fadeOutStart={0.29}
-              fadeOutEnd={0.34}
-            >
-              <SceneLibrary />
-            </Scene3DWrapper>
-          )}
+            {/* Chapter 2: SceneLibrary */}
+            {mountedScenes[2] && (
+              <Scene3DWrapper
+                progress={smoothProgress}
+                fadeInStart={0.13}
+                fadeInEnd={0.16}
+                fadeOutStart={0.25}
+                fadeOutEnd={0.29}
+              >
+                <SceneLibrary />
+              </Scene3DWrapper>
+            )}
 
-          {/* Whisper 2 */}
-          {mountedScenes[3] && (
-            <WhisperScene
-              whisper="every page turned into a memory of her."
-              progress={smoothProgress}
-              start={0.29}
-              end={0.36}
-            />
-          )}
+            {/* Whisper 2 */}
+            {mountedScenes[3] && (
+              <WhisperScene
+                whisper="every page turned into a memory of her."
+                progress={smoothProgress}
+                start={0.25}
+                end={0.31}
+              />
+            )}
 
-          {/* Chapter 3: SceneGallery */}
-          {mountedScenes[4] && (
-            <Scene3DWrapper
-              progress={smoothProgress}
-              fadeInStart={0.33}
-              fadeInEnd={0.36}
-              fadeOutStart={0.47}
-              fadeOutEnd={0.52}
-            >
-              <SceneGallery />
-            </Scene3DWrapper>
-          )}
+            {/* Chapter 3: SceneGallery */}
+            {mountedScenes[4] && (
+              <Scene3DWrapper
+                progress={smoothProgress}
+                fadeInStart={0.28}
+                fadeInEnd={0.31}
+                fadeOutStart={0.43}
+                fadeOutEnd={0.47}
+              >
+                <SceneGallery />
+              </Scene3DWrapper>
+            )}
 
-          {/* Whisper 3 */}
-          {mountedScenes[5] && (
-            <WhisperScene
-              whisper="every memory became a word… and the words became a letter."
-              progress={smoothProgress}
-              start={0.47}
-              end={0.54}
-            />
-          )}
+            {/* Whisper 3 */}
+            {mountedScenes[5] && (
+              <WhisperScene
+                whisper="every memory became a word… and the words became a letter."
+                progress={smoothProgress}
+                start={0.42}
+                end={0.48}
+              />
+            )}
 
-          {/* Chapter 4: SceneLetter */}
-          {mountedScenes[6] && (
-            <Scene3DWrapper
-              progress={smoothProgress}
-              fadeInStart={0.51}
-              fadeInEnd={0.54}
-              fadeOutStart={0.65}
-              fadeOutEnd={0.7}
-            >
-              <SceneLetter />
-            </Scene3DWrapper>
-          )}
+            {/* Chapter 4: SceneLetter */}
+            {mountedScenes[6] && (
+              <Scene3DWrapper
+                progress={smoothProgress}
+                fadeInStart={0.46}
+                fadeInEnd={0.49}
+                fadeOutStart={0.60}
+                fadeOutEnd={0.64}
+              >
+                <SceneLetter />
+              </Scene3DWrapper>
+            )}
 
-          {/* Whisper 4 */}
-          {mountedScenes[7] && (
-            <WhisperScene
-              whisper="and the letter ended where the wish begins…"
-              progress={smoothProgress}
-              start={0.65}
-              end={0.72}
-            />
-          )}
+            {/* Whisper 4 */}
+            {mountedScenes[7] && (
+              <WhisperScene
+                whisper="and every word came alive… in every moving frame."
+                progress={smoothProgress}
+                start={0.59}
+                end={0.65}
+              />
+            )}
 
-          {/* Chapter 5: SceneFinale */}
-          {mountedScenes[8] && (
-            <Scene3DWrapper
-              progress={smoothProgress}
-              fadeInStart={0.72}
-              fadeInEnd={0.75}
-              fadeOutStart={0.86}
-              fadeOutEnd={0.91}
-            >
-              <SceneFinale />
-            </Scene3DWrapper>
-          )}
+            {/* Chapter 5: SceneReel (Our Memory Reel) */}
+            {mountedScenes[8] && (
+              <Scene3DWrapper
+                progress={smoothProgress}
+                fadeInStart={0.63}
+                fadeInEnd={0.66}
+                fadeOutStart={0.77}
+                fadeOutEnd={0.81}
+              >
+                <SceneReel />
+              </Scene3DWrapper>
+            )}
 
-          {/* Whisper 5 */}
-          {mountedScenes[9] && (
-            <WhisperScene
-              whisper="sleep softly, dreamer. the story keeps you."
-              progress={smoothProgress}
-              start={0.86}
-              end={0.93}
-            />
-          )}
+            {/* Whisper 5 */}
+            {mountedScenes[9] && (
+              <WhisperScene
+                whisper="and the reel ended where the wish begins…"
+                progress={smoothProgress}
+                start={0.76}
+                end={0.82}
+              />
+            )}
 
-          {/* Chapter 6: SceneEnding */}
-          {mountedScenes[10] && (
-            <Scene3DWrapper
-              progress={smoothProgress}
-              fadeInStart={0.9}
-              fadeInEnd={0.93}
-              fadeOutStart={1.0}
-              fadeOutEnd={1.1}
-            >
-              <SceneEnding />
-            </Scene3DWrapper>
-          )}
-        </div>
-      )}
+            {/* Chapter 6: SceneFinale */}
+            {mountedScenes[10] && (
+              <Scene3DWrapper
+                progress={smoothProgress}
+                fadeInStart={0.80}
+                fadeInEnd={0.83}
+                fadeOutStart={0.90}
+                fadeOutEnd={0.93}
+              >
+                <SceneFinale />
+              </Scene3DWrapper>
+            )}
+
+            {/* Whisper 6 */}
+            {mountedScenes[11] && (
+              <WhisperScene
+                whisper="sleep softly, dreamer. the story keeps you."
+                progress={smoothProgress}
+                start={0.90}
+                end={0.95}
+              />
+            )}
+
+            {/* Chapter 7: SceneEnding */}
+            {mountedScenes[12] && (
+              <Scene3DWrapper
+                progress={smoothProgress}
+                fadeInStart={0.93}
+                fadeInEnd={0.96}
+                fadeOutStart={1.0}
+                fadeOutEnd={1.1}
+              >
+                <SceneEnding />
+              </Scene3DWrapper>
+            )}
+          </div>
+        )}
       </main>
     </MusicProvider>
   );
