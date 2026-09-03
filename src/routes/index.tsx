@@ -81,7 +81,6 @@ function Scene3DWrapper({
         rotateY,
         pointerEvents,
         transformStyle: "preserve-3d",
-        willChange: "transform, opacity",
       }}
       className="absolute inset-0 w-full h-full overflow-hidden"
     >

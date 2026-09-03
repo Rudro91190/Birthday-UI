@@ -175,16 +175,23 @@ export function SceneGallery() {
     };
   }, []);
 
-  // Single persistent RAF loop — never re-created, reads from refs
+  // Single persistent RAF loop — auto-rotates smoothly on desktop, disabled on mobile to prevent CPU heating
   useEffect(() => {
     const tick = (time: number) => {
+      if (document.visibilityState !== "visible") {
+        animRef.current = requestAnimationFrame(tick);
+        return;
+      }
+
       if (!lastTimeRef.current) lastTimeRef.current = time;
       const dt = Math.min((time - lastTimeRef.current) / 1000, 0.05); // cap dt to prevent jumps
       lastTimeRef.current = time;
 
-      if (autoRotateRef.current && !isDraggingRef.current && hoveredRef.current === null && !isExplodedRef.current) {
-        angleYRef.current += dt * 10;
-        angleXRef.current += Math.sin(time / 2000) * dt * 2;
+      // On mobile devices, disable continuous 60fps auto-rotation to keep the phone cool.
+      // Rotation happens smoothly on user touch drag instead!
+      if (!isMobile && autoRotateRef.current && !isDraggingRef.current && hoveredRef.current === null && !isExplodedRef.current) {
+        angleYRef.current += dt * 8;
+        angleXRef.current += Math.sin(time / 2000) * dt * 1.5;
         setRenderAngles({ x: angleXRef.current, y: angleYRef.current });
       }
 
@@ -196,7 +203,7 @@ export function SceneGallery() {
       cancelAnimationFrame(animRef.current);
       lastTimeRef.current = 0;
     };
-  }, []); // ← empty deps — one persistent loop, uses refs only
+  }, [isMobile]);
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
@@ -333,8 +340,8 @@ export function SceneGallery() {
             "radial-gradient(ellipse at 30% 20%, oklch(0.28 0.08 320) 0%, oklch(0.14 0.05 295) 50%, oklch(0.10 0.04 290) 100%)",
         }}
       />
-      <Particles count={70} />
-      <Petals count={14} />
+      <Particles count={isMobile ? 18 : 45} />
+      <Petals count={isMobile ? 6 : 12} />
 
       {/* Heading */}
       <div className="relative z-10 text-center px-4 sm:px-6">
@@ -396,6 +403,11 @@ export function SceneGallery() {
       >
         {/* Render 3D billboarded cards */}
         {cards.map((card) => {
+          // On mobile phones, skip occluded cards located at the deep back of the sphere to cut DOM load
+          if (isMobile && !isExploded && card.depth < 0.22) {
+            return null;
+          }
+
           const isHovered = hoveredIdx === card.globalIdx;
           const isAnyHovered = hoveredIdx !== null;
           const isOtherHovered = isAnyHovered && !isHovered;
@@ -442,8 +454,8 @@ export function SceneGallery() {
                 zIndex: currentZIndex,
                 filter: filter,
                 transition: isExploded
-                  ? "transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease, filter 0.4s ease"
-                  : "transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, filter 0.4s ease",
+                  ? "transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease"
+                  : "none",
               }}
               onMouseEnter={() => setHoveredIdx(card.globalIdx)}
               onMouseLeave={() => setHoveredIdx(null)}
@@ -506,7 +518,6 @@ export function SceneGallery() {
             background: isExploded
               ? "radial-gradient(circle, oklch(0.86 0.12 340 / 0.18) 0%, oklch(0.84 0.09 55 / 0.08) 50%, transparent 70%)"
               : "radial-gradient(circle, oklch(0.86 0.08 0 / 0.12) 0%, transparent 70%)",
-            filter: "blur(45px)",
             opacity: isExploded ? 0.8 : 1,
           }}
         />

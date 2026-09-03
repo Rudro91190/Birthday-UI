@@ -20,13 +20,16 @@ export function DreamVoid() {
   const orbScale = useTransform(smooth, [0, 0.5, 1], [0.8, 1.4, 0.9]);
   const orbHue = useTransform(smooth, [0, 0.5, 1], [0, 30, -10]);
 
-  // three parallax dust layers for depth
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+  // three parallax dust layers for depth (lightweight density for thermal cooling)
   const layers = useMemo(
-    () =>
-      [
-        { count: 70, size: [1, 2], speed: 1, opacity: 0.5, color: "var(--cream)" },
-        { count: 50, size: [1.5, 3], speed: 0.6, opacity: 0.7, color: "var(--lotus)" },
-        { count: 30, size: [2, 4], speed: 0.3, opacity: 0.9, color: "var(--rose-gold)" },
+    () => {
+      const scale = isMobile ? 0.3 : 0.55;
+      return [
+        { count: Math.round(70 * scale), size: [1, 2], speed: 1, opacity: 0.45, color: "var(--cream)" },
+        { count: Math.round(50 * scale), size: [1.5, 2.5], speed: 0.6, opacity: 0.6, color: "var(--lotus)" },
+        { count: Math.round(30 * scale), size: [2, 3], speed: 0.3, opacity: 0.75, color: "var(--rose-gold)" },
       ].map((layer) => ({
         ...layer,
         particles: Array.from({ length: layer.count }).map((_, i) => ({
@@ -37,8 +40,9 @@ export function DreamVoid() {
           d: Math.random() * 8,
           dur: 4 + Math.random() * 6,
         })),
-      })),
-    [],
+      }));
+    },
+    [isMobile],
   );
 
   return (
@@ -47,7 +51,7 @@ export function DreamVoid() {
       style={{ mixBlendMode: "screen" }}
       aria-hidden
     >
-      {/* slow rotating lotus core — the textura "orb" reimagined as a soft pink nebula */}
+      {/* slow rotating lotus core — feathered softly with gradient stops instead of expensive GPU blur filter */}
       <motion.div
         className="absolute left-1/2 h-[60vmin] w-[60vmin] -translate-x-1/2 rounded-full"
         style={{
@@ -55,8 +59,7 @@ export function DreamVoid() {
           scale: orbScale,
           rotate: useTransform(smooth, [0, 1], [0, 240]),
           background:
-            "radial-gradient(circle at 50% 50%, oklch(0.86 0.12 0 / 0.35) 0%, oklch(0.84 0.09 55 / 0.22) 30%, oklch(0.82 0.08 305 / 0.10) 55%, transparent 75%)",
-          filter: "blur(40px)",
+            "radial-gradient(circle at 50% 50%, oklch(0.86 0.12 0 / 0.28) 0%, oklch(0.84 0.09 55 / 0.15) 35%, oklch(0.82 0.08 305 / 0.06) 60%, transparent 80%)",
           opacity: 0.85,
         }}
       >
@@ -64,10 +67,9 @@ export function DreamVoid() {
           className="absolute inset-0 rounded-full"
           style={{
             background:
-              "radial-gradient(circle at 50% 50%, oklch(0.96 0.03 80 / 0.4) 0%, transparent 35%)",
-            filter: `hue-rotate(${orbHue.get()}deg)`,
+              "radial-gradient(circle at 50% 50%, oklch(0.96 0.03 80 / 0.3) 0%, transparent 40%)",
           }}
-          animate={{ scale: [1, 1.08, 1], opacity: [0.6, 1, 0.6] }}
+          animate={{ scale: [1, 1.06, 1], opacity: [0.6, 0.9, 0.6] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         />
       </motion.div>
@@ -87,7 +89,7 @@ export function DreamVoid() {
                   height: p.s,
                   background: layer.color,
                   opacity: layer.opacity,
-                  boxShadow: `0 0 ${p.s * 6}px ${layer.color}, 0 0 ${p.s * 14}px ${layer.color}`,
+                  boxShadow: `0 0 ${p.s * 2}px ${layer.color}`,
                   animation: `twinkle ${p.dur}s ease-in-out ${p.d}s infinite`,
                 }}
               />

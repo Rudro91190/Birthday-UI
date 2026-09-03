@@ -78,6 +78,26 @@ export function SceneReel() {
     };
   }, [music]);
 
+  // Auto-pause video when scrolled out of view to save mobile battery & thermals
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting && videoRef.current && !videoRef.current.paused) {
+            videoRef.current.pause();
+          }
+        });
+      },
+      { threshold: 0.25 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const togglePlay = () => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
@@ -191,8 +211,8 @@ export function SceneReel() {
       />
 
       {/* Atmospheric starlight particles and soft petals */}
-      <Particles count={70} color="oklch(0.92 0.10 60)" />
-      <Petals count={22} />
+      <Particles count={25} color="oklch(0.92 0.10 60)" />
+      <Petals count={8} />
 
       {/* Title & Introduction */}
       <div className="relative z-10 text-center max-w-xl mb-6 sm:mb-8 px-4">
@@ -215,19 +235,20 @@ export function SceneReel() {
       <div className="relative z-10 flex flex-col items-center">
         {/* Ambient Backlight Aura Glow */}
         <motion.div
-          animate={{
-            opacity: isPlaying ? [0.65, 0.9, 0.65] : 0.35,
-            scale: isPlaying ? [1, 1.04, 1] : 0.98,
-          }}
+          animate={
+            isPlaying
+              ? { opacity: [0.55, 0.8, 0.55], scale: [1, 1.03, 1] }
+              : { opacity: 0.25, scale: 1 }
+          }
           transition={{
             duration: 3.5,
-            repeat: Infinity,
+            repeat: isPlaying ? Infinity : 0,
             ease: "easeInOut",
           }}
-          className="absolute -inset-4 sm:-inset-6 rounded-[44px] pointer-events-none blur-3xl"
+          className="absolute -inset-4 sm:-inset-6 rounded-[44px] pointer-events-none blur-2xl"
           style={{
             background:
-              "radial-gradient(circle, oklch(0.86 0.14 340 / 0.45) 0%, oklch(0.84 0.11 55 / 0.3) 50%, transparent 75%)",
+              "radial-gradient(circle, oklch(0.86 0.14 340 / 0.35) 0%, oklch(0.84 0.11 55 / 0.22) 50%, transparent 75%)",
           }}
         />
 

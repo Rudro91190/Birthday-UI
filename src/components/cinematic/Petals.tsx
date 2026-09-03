@@ -12,22 +12,23 @@ interface PetalsProps {
  * Shared SVG gradient via <defs> in a hidden sprite to avoid per-petal gradient recalc.
  */
 export function Petals({ count = 14, className = "", slow = 1 }: PetalsProps) {
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const effectiveCount = isMobile ? Math.min(count, 8) : Math.min(count, 14);
+
   const petals = useMemo(
     () =>
-      Array.from({ length: count }).map((_, i) => {
-        const size = 16 + Math.random() * 28;
+      Array.from({ length: effectiveCount }).map((_, i) => {
+        const size = 16 + Math.random() * 24;
         const left = Math.random() * 100;
         const delay = -Math.random() * 28;
         const duration = (18 + Math.random() * 18) * slow;
-        const drift = -100 + Math.random() * 200;
+        const drift = -80 + Math.random() * 160;
         const depth = Math.random();
         const isLotus = Math.random() > 0.5;
-        const opacity = 0.3 + depth * 0.5;
-        // Only blur the very nearest petals (< 20% depth), and cap at 1px
-        const blur = depth < 0.2 ? 1 : 0;
-        return { i, size, left, delay, duration, drift, opacity, blur, isLotus };
+        const opacity = 0.3 + depth * 0.45;
+        return { i, size, left, delay, duration, drift, opacity, isLotus };
       }),
-    [count, slow],
+    [effectiveCount, slow],
   );
 
   return (
@@ -55,10 +56,7 @@ export function Petals({ count = 14, className = "", slow = 1 }: PetalsProps) {
             width: p.size,
             height: p.size,
             opacity: p.opacity,
-            // Only apply blur to a handful of near petals
-            filter: p.blur ? `blur(${p.blur}px)` : undefined,
-            // GPU layer promotion
-            willChange: "transform",
+            transform: "translateZ(0)",
             animation: `float-petal ${p.duration}s linear ${p.delay}s infinite`,
             ["--drift" as string]: `${p.drift}px`,
           }}
