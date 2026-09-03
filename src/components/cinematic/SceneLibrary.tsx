@@ -72,6 +72,7 @@ const MEMORIES: LibraryMemory[] = [
 
 /** Chapter 1 — floating fantasy library above a lotus lake. */
 export function SceneLibrary() {
+  const isMobile = useRef(typeof window !== "undefined" && window.innerWidth < 768).current;
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], ["10%", "-10%"]);
@@ -89,19 +90,19 @@ export function SceneLibrary() {
         }}
       />
 
-      {/* god rays */}
+      {/* god rays — no blur on mobile */}
       <div
         className="pointer-events-none absolute inset-0 opacity-40"
         style={{
           background:
             "conic-gradient(from 200deg at 50% -10%, transparent 0deg, oklch(0.84 0.09 55 / 0.4) 30deg, transparent 60deg, transparent 360deg)",
           mixBlendMode: "screen",
-          filter: "blur(8px)",
+          ...(isMobile ? {} : { filter: "blur(8px)" }),
         }}
       />
 
       <Particles count={35} color="oklch(0.84 0.09 55)" />
-      <Petals count={12} />
+      <Petals count={isMobile ? 5 : 12} />
 
       {/* chapter heading */}
       <motion.div style={{ y }} className="relative z-10 pt-28 text-center px-6">
@@ -131,7 +132,7 @@ export function SceneLibrary() {
           >
             {/* Compact Photo card wrapper with 3D float */}
             <motion.div
-              animate={{
+              animate={isMobile ? {} : {
                 y: hovered === i ? -10 : [0, -5, 0],
                 rotateY: hovered === i ? -4 : 0,
                 rotateX: hovered === i ? 2 : 0,
@@ -210,7 +211,7 @@ export function SceneLibrary() {
                 className="pointer-events-none absolute -inset-2.5 rounded-xl"
                 style={{
                   background: "radial-gradient(ellipse at 50% 50%, oklch(0.84 0.09 55 / 0.35) 0%, transparent 70%)",
-                  filter: "blur(14px)",
+                  ...(isMobile ? {} : { filter: "blur(14px)" }),
                 }}
               />
             </motion.div>

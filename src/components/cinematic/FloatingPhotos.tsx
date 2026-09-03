@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useRef } from "react";
 
 export interface FloatingPhotoSpec {
   src: string;
@@ -16,6 +17,7 @@ export interface FloatingPhotoSpec {
  * CSS-driven sizing & visibility guarantees zero hydration flashes.
  */
 export function FloatingPhotos({ photos }: { photos: FloatingPhotoSpec[] }) {
+  const isMobile = useRef(typeof window !== "undefined" && window.innerWidth < 768).current;
   return (
     <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">
       {photos.map((p, i) => {
@@ -31,7 +33,7 @@ export function FloatingPhotos({ photos }: { photos: FloatingPhotoSpec[] }) {
             transition={{ duration: 1.4, delay: (p.delay ?? 0) + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
           >
             <motion.div
-              animate={{ y: [0, -10, 0], rotate: [rot, rot + 1.5, rot] }}
+            animate={isMobile ? {} : { y: [0, -10, 0], rotate: [rot, rot + 1.5, rot] }}
               transition={{ duration: 7 + (i % 4), repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}
               className="rounded-[3px] p-1.5 pb-4 md:p-2 md:pb-6"
               style={{

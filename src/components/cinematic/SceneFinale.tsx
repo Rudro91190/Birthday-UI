@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Petals } from "./Petals";
 import { Particles } from "./Particles";
 import { Lotus } from "./Lotus";
@@ -8,6 +8,7 @@ import { PHOTOS } from "./photos";
 
 /** Chapter 5 — magical lotus garden + interactive birthday cake. */
 export function SceneFinale() {
+  const isMobile = useRef(typeof window !== "undefined" && window.innerWidth < 768).current;
   const [blown, setBlown] = useState(false);
   const confetti = useMemo(
     () =>
@@ -28,8 +29,8 @@ export function SceneFinale() {
         background: "radial-gradient(ellipse at 50% 70%, oklch(0.30 0.10 320) 0%, oklch(0.15 0.06 295) 60%, oklch(0.08 0.03 285) 100%)",
       }} />
 
-      {/* fireworks bursts */}
-      {[20, 75, 50].map((l, i) => (
+      {/* fireworks bursts — desktop only, too expensive on mobile */}
+      {!isMobile && [20, 75, 50].map((l, i) => (
         <motion.div
           key={i}
           className="absolute"
@@ -51,8 +52,8 @@ export function SceneFinale() {
         </motion.div>
       ))}
 
-      <Particles count={120} color="oklch(0.92 0.10 60)" />
-      <Petals count={28} />
+      <Particles count={isMobile ? 16 : 120} color="oklch(0.92 0.10 60)" />
+      <Petals count={isMobile ? 6 : 28} />
 
       <FloatingPhotos
         photos={[
@@ -89,7 +90,7 @@ export function SceneFinale() {
 
         {/* surrounding lotuses */}
         <div className="mt-6 flex justify-center gap-2 sm:gap-4 opacity-90">
-          {[32, 44, 38, 48, 36].map((s, i) => (
+          {[32, 44, 38, 48, 36].filter((_, i) => !isMobile || i < 3).map((s, i) => (
             <motion.div key={i} animate={{ y: [0, -6, 0] }}
               transition={{ duration: 3 + i, repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}>
               <Lotus size={s} />
@@ -184,7 +185,8 @@ function Cake({ blown }: { blown: boolean }) {
       </svg>
       {!blown && (
         <div className="pointer-events-none absolute inset-0 rounded-full"
-          style={{ background: "radial-gradient(circle at 50% 30%, oklch(0.85 0.18 60 / 0.5) 0%, transparent 50%)", filter: "blur(20px)" }} />
+          style={{ background: "radial-gradient(circle at 50% 30%, oklch(0.85 0.18 60 / 0.5) 0%, transparent 50%)",
+                   ...(isMobile ? {} : { filter: "blur(20px)" }) }} />
       )}
     </div>
   );

@@ -22,20 +22,35 @@ export function DreamVoid() {
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
-  // three parallax dust layers for depth (lightweight density for thermal cooling)
+  // parallax dust layers for depth (minimal on mobile to eliminate GPU overhead)
   const layers = useMemo(
     () => {
-      const scale = isMobile ? 0.3 : 0.55;
+      if (isMobile) {
+        return [
+          {
+            color: "var(--cream)",
+            opacity: 0.4,
+            particles: Array.from({ length: 12 }).map((_, i) => ({
+              i,
+              x: Math.random() * 100,
+              y: Math.random() * 150,
+              s: 1.5,
+              d: Math.random() * 5,
+              dur: 5 + Math.random() * 4,
+            })),
+          },
+        ];
+      }
       return [
-        { count: Math.round(70 * scale), size: [1, 2], speed: 1, opacity: 0.45, color: "var(--cream)" },
-        { count: Math.round(50 * scale), size: [1.5, 2.5], speed: 0.6, opacity: 0.6, color: "var(--lotus)" },
-        { count: Math.round(30 * scale), size: [2, 3], speed: 0.3, opacity: 0.75, color: "var(--rose-gold)" },
+        { count: 38, size: [1, 2], opacity: 0.45, color: "var(--cream)" },
+        { count: 28, size: [1.5, 2.5], opacity: 0.6, color: "var(--lotus)" },
+        { count: 16, size: [2, 3], opacity: 0.75, color: "var(--rose-gold)" },
       ].map((layer) => ({
         ...layer,
         particles: Array.from({ length: layer.count }).map((_, i) => ({
           i,
           x: Math.random() * 100,
-          y: Math.random() * 200, // spread across 2 viewports
+          y: Math.random() * 200,
           s: layer.size[0] + Math.random() * (layer.size[1] - layer.size[0]),
           d: Math.random() * 8,
           dur: 4 + Math.random() * 6,
@@ -48,7 +63,7 @@ export function DreamVoid() {
   return (
     <div
       className="pointer-events-none fixed inset-0 z-[5] overflow-hidden"
-      style={{ mixBlendMode: "screen" }}
+      style={{ mixBlendMode: isMobile ? undefined : "screen" }}
       aria-hidden
     >
       {/* slow rotating lotus core — feathered softly with gradient stops instead of expensive GPU blur filter */}
@@ -104,7 +119,7 @@ export function DreamVoid() {
         style={{
           background:
             "radial-gradient(ellipse at 50% 50%, transparent 40%, oklch(0.08 0.03 285 / 0.55) 100%)",
-          mixBlendMode: "multiply",
+          mixBlendMode: isMobile ? undefined : "multiply",
         }}
       />
     </div>

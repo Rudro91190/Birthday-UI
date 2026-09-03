@@ -48,17 +48,19 @@ export function SceneSky() {
   const whisper2Op   = useTransform(p, [0.88, 0.93, 0.98, 1], [0, 1, 1, 0.6]);
   const headingOp    = useTransform(p, [0, 0.06, 0.12], [1, 1, 0]);
 
-  // Cursor parallax for lanterns / petals
+  // Cursor parallax for lanterns / petals — desktop only
+  const isMobile = useRef(typeof window !== "undefined" && window.innerWidth < 768).current;
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   useEffect(() => {
+    if (isMobile) return; // no cursor on mobile, save battery
     const h = (e: MouseEvent) =>
       setMouse({
         x: (e.clientX / window.innerWidth - 0.5) * 2,
         y: (e.clientY / window.innerHeight - 0.5) * 2,
       });
-    window.addEventListener("mousemove", h);
+    window.addEventListener("mousemove", h, { passive: true });
     return () => window.removeEventListener("mousemove", h);
-  }, []);
+  }, [isMobile]);
 
   return (
     <section ref={ref} className="relative" style={{ minHeight: "520vh" }}>
@@ -88,13 +90,13 @@ export function SceneSky() {
           <path d="M0 240 L120 160 L260 220 L420 130 L580 210 L740 150 L900 220 L1080 140 L1240 210 L1440 170 L1440 400 L0 400 Z" fill="url(#mtn)" />
         </svg>
 
-        {/* Aurora wash */}
+        {/* Aurora wash — no Gaussian blur on mobile */}
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-[55vh] opacity-50"
           style={{
             background:
               "radial-gradient(ellipse at 30% 40%, oklch(0.72 0.14 175 / 0.30) 0%, transparent 55%), radial-gradient(ellipse at 75% 30%, oklch(0.78 0.16 320 / 0.32) 0%, transparent 60%)",
-            filter: "blur(50px)",
+            ...(isMobile ? {} : { filter: "blur(50px)" }),
           }}
         />
 
@@ -116,8 +118,8 @@ export function SceneSky() {
           />
         </motion.div>
 
-        {/* Stars */}
-        <Particles count={120} />
+        {/* Stars — Particles caps to 22 on mobile */}
+        <Particles count={isMobile ? 60 : 120} />
 
         {/* Reflective black lotus lake (bottom half) */}
         <motion.div
@@ -131,14 +133,16 @@ export function SceneSky() {
                 "linear-gradient(180deg, transparent 0%, oklch(0.06 0.02 285) 25%, oklch(0.03 0.01 285) 100%)",
             }}
           />
-          {/* Moon reflection ripple */}
+          {/* Moon reflection ripple — no blur on mobile */}
           <div
             className="absolute left-1/2 top-2 h-[30vh] w-[40vw] -translate-x-1/2 opacity-50"
             style={{
               background:
                 "radial-gradient(ellipse at 50% 0%, oklch(0.95 0.04 70 / 0.45), transparent 70%)",
-              filter: "blur(20px)",
-              transform: `translateX(calc(-50% + ${mouse.x * 8}px))`,
+              ...(isMobile ? {} : {
+                filter: "blur(20px)",
+                transform: `translateX(calc(-50% + ${mouse.x * 8}px))`,
+              }),
             }}
           />
           {/* Floating lotuses on the water */}
@@ -174,7 +178,7 @@ export function SceneSky() {
           />
         </div>
 
-        {/* Fog */}
+        {/* Fog — no blur on mobile */}
         <motion.div
           style={{ opacity: fogOpacity }}
           className="pointer-events-none absolute inset-0"
@@ -184,7 +188,7 @@ export function SceneSky() {
             style={{
               background:
                 "radial-gradient(ellipse at 50% 50%, oklch(0.85 0.03 320 / 0.45) 0%, transparent 70%)",
-              filter: "blur(30px)",
+              ...(isMobile ? {} : { filter: "blur(30px)" }),
             }}
           />
         </motion.div>
@@ -198,10 +202,11 @@ export function SceneSky() {
               style={{
                 left: l.left,
                 top: l.top,
-                transform: `translate(${mouse.x * (8 + i * 2)}px, ${mouse.y * (6 + i * 2)}px)`,
-                transition: "transform 0.8s ease-out",
+                // Parallax only on desktop
+                transform: isMobile ? undefined : `translate(${mouse.x * (8 + i * 2)}px, ${mouse.y * (6 + i * 2)}px)`,
+                transition: isMobile ? undefined : "transform 0.8s ease-out",
               }}
-              animate={{ y: [0, -12, 0] }}
+              animate={isMobile ? {} : { y: [0, -12, 0] }}
               transition={{ duration: 7 + i, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
             >
               <Lantern />

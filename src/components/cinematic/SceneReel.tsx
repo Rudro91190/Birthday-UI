@@ -258,7 +258,7 @@ export function SceneReel() {
           onMouseMove={handleMouseMove}
           onClick={togglePlay}
           onDoubleClick={triggerHeartBurst}
-          className="group relative w-[280px] xs:w-[320px] sm:w-[350px] md:w-[380px] aspect-[9/16] max-h-[70vh] rounded-[32px] sm:rounded-[38px] border-2 border-[var(--rose-gold)]/40 bg-black/80 shadow-[0_25px_70px_rgba(0,0,0,0.85)] overflow-hidden cursor-pointer backdrop-blur-xl flex flex-col justify-between"
+          className="group relative w-[280px] xs:w-[320px] sm:w-[350px] md:w-[380px] aspect-[9/16] max-h-[70vh] rounded-[32px] sm:rounded-[38px] border-2 border-[var(--rose-gold)]/40 bg-black/90 shadow-[0_25px_70px_rgba(0,0,0,0.85)] overflow-hidden cursor-pointer flex flex-col justify-between"
           style={{
             boxShadow: isPlaying
               ? "0 0 50px oklch(0.86 0.12 340 / 0.4), 0 25px 70px rgba(0,0,0,0.9)"

@@ -248,18 +248,21 @@ const LETTER = [
  * Desktop: letter flanked by absolutely-positioned photo panels
  */
 export function SceneLetter() {
+  const isMobile = React.useRef(typeof window !== "undefined" && window.innerWidth < 768).current;
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const raindrops = useMemo(
     () =>
-      Array.from({ length: 25 }).map((_, i) => ({
-        i,
-        left: Math.random() * 100,
-        delay: Math.random() * 4,
-        duration: 1.2 + Math.random() * 1.4,
-        h: 20 + Math.random() * 40,
-      })),
-    [],
+      isMobile
+        ? []
+        : Array.from({ length: 25 }).map((_, i) => ({
+            i,
+            left: Math.random() * 100,
+            delay: Math.random() * 4,
+            duration: 1.2 + Math.random() * 1.4,
+            h: 20 + Math.random() * 40,
+          })),
+    [isMobile],
   );
 
   // Divide keepsakes evenly into left and right floating streams
@@ -333,24 +336,22 @@ export function SceneLetter() {
             style={{
               left: `${r.left}%`,
               height: r.h,
-              willChange: "transform",
               animation: `rain-fall ${r.duration}s linear ${r.delay}s infinite`,
             }}
           />
         ))}
       </div>
 
-      {/* Fairy lights at ceiling */}
+      {/* Fairy lights at ceiling — reduced on mobile */}
       <div className="absolute inset-x-0 top-0 flex justify-around px-4 pt-2 opacity-90 z-10 pointer-events-none">
-        {Array.from({ length: 30 }).map((_, i) => (
+        {Array.from({ length: isMobile ? 12 : 30 }).map((_, i) => (
           <div
             key={i}
             className="h-1.5 w-1.5 rounded-full"
             style={{
               background: i % 2 ? "oklch(0.95 0.08 80)" : "oklch(0.88 0.07 35)",
-              boxShadow:
-                "0 0 8px oklch(0.92 0.10 60 / 0.8), 0 0 18px oklch(0.92 0.10 60 / 0.4)",
-              animation: `twinkle ${2 + (i % 5) * 0.4}s ease-in-out ${i * 0.1}s infinite`,
+              boxShadow: "0 0 6px oklch(0.92 0.10 60 / 0.7)",
+              animation: isMobile ? undefined : `twinkle ${2 + (i % 5) * 0.4}s ease-in-out ${i * 0.1}s infinite`,
             }}
           />
         ))}
@@ -364,8 +365,8 @@ export function SceneLetter() {
         <BookStack />
       </div>
 
-      <Particles count={20} color="oklch(0.92 0.10 60)" />
-      <Petals count={5} slow={1.6} />
+      <Particles count={isMobile ? 10 : 20} color="oklch(0.92 0.10 60)" />
+      <Petals count={isMobile ? 3 : 5} slow={1.6} />
 
       {/* Chapter Title Header */}
       <div className="relative z-10 pt-16 sm:pt-20 text-center px-4 sm:px-6">
@@ -809,7 +810,6 @@ function FloatingPolaroidCard({
           boxShadow:
             "0 14px 28px -7px oklch(0 0 0 / 0.65), 0 0 16px oklch(0.86 0.08 0 / 0.18)",
           border: "1px solid oklch(0.84 0.09 55 / 0.45)",
-          willChange: "transform",
         }}
       >
         <div className="relative aspect-[3/4] w-full overflow-hidden rounded-[2px] bg-black/10">

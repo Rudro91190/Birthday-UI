@@ -119,7 +119,6 @@ function WhisperScene({ whisper, progress, start, end }: WhisperSceneProps) {
         z,
         pointerEvents: "none",
         transformStyle: "preserve-3d",
-        willChange: "transform, opacity",
       }}
       className="absolute inset-0 flex items-center justify-center px-6 pointer-events-none select-none"
     >

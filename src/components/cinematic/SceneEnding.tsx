@@ -6,13 +6,14 @@ import { PHOTOS } from "./photos";
 
 /** Final ending — quiet starlight, lotus + heart fade. */
 export function SceneEnding() {
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   return (
     <section className="relative min-h-screen overflow-hidden">
       <div className="absolute inset-0" style={{
         background: "radial-gradient(ellipse at 50% 60%, oklch(0.16 0.06 305) 0%, oklch(0.08 0.03 285) 70%, oklch(0.04 0.02 280) 100%)",
       }} />
 
-      <Particles count={140} />
+      <Particles count={isMobile ? 18 : 140} />
 
       <FloatingPhotos
         photos={[

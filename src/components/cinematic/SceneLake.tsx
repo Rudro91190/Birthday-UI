@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Petals } from "./Petals";
 import { Particles } from "./Particles";
 import { Lotus } from "./Lotus";
@@ -9,17 +9,21 @@ import { Lotus } from "./Lotus";
  * lantern lights, and cinematic mouse parallax.
  */
 export function SceneLake() {
+  const isMobileRef = useRef(typeof window !== "undefined" && window.innerWidth < 768);
+  const isMobile = isMobileRef.current;
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
+    // No cursor on mobile — skip handler to save battery
+    if (isMobile) return;
     const handler = (e: MouseEvent) => {
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
       setMouse({ x, y });
     };
-    window.addEventListener("mousemove", handler);
+    window.addEventListener("mousemove", handler, { passive: true });
     return () => window.removeEventListener("mousemove", handler);
-  }, []);
+  }, [isMobile]);
 
   const title = "Happy Birthday Oishi";
 
@@ -30,26 +34,28 @@ export function SceneLake() {
       {/* far stars */}
       <Particles count={120} />
 
-      {/* drifting fog clouds */}
+      {/* drifting fog clouds — static on mobile to avoid continuous GPU blur repaint */}
       <div
-        className="absolute inset-x-0 top-[10%] h-40 opacity-30"
+        className="absolute inset-x-0 top-[10%] h-40 opacity-25"
         style={{
           background: "radial-gradient(ellipse at center, var(--cream) 0%, transparent 70%)",
-          animation: "drift-cloud 40s ease-in-out infinite alternate",
-          filter: "blur(40px)",
+          ...(isMobile ? {} : {
+            animation: "drift-cloud 40s ease-in-out infinite alternate",
+            filter: "blur(40px)",
+          }),
         }}
       />
 
-      {/* MOON */}
-      <motion.div
+      {/* MOON — plain div on mobile, no mousemove tracking */}
+      <div
         className="absolute"
         style={{
           top: "8%",
           left: "62%",
           width: "min(36vw, 360px)",
           height: "min(36vw, 360px)",
-          transform: `translate(${mouse.x * -20}px, ${mouse.y * -10}px)`,
-          transition: "transform 0.6s cubic-bezier(0.22,1,0.36,1)",
+          transform: isMobile ? undefined : `translate(${mouse.x * -20}px, ${mouse.y * -10}px)`,
+          transition: isMobile ? undefined : "transform 0.6s cubic-bezier(0.22,1,0.36,1)",
         }}
       >
         <div
@@ -60,8 +66,7 @@ export function SceneLake() {
             boxShadow: "var(--glow-moon)",
           }}
         />
-        {/* moon reflection on water */}
-      </motion.div>
+      </div>
 
       {/* distant mountains silhouette */}
       <svg
@@ -83,15 +88,17 @@ export function SceneLake() {
             "linear-gradient(180deg, oklch(0.20 0.06 310) 0%, oklch(0.10 0.04 290) 80%)",
         }}
       >
-        {/* moon reflection */}
-        <motion.div
+        {/* moon reflection — no blur or parallax on mobile */}
+        <div
           className="absolute left-[58%] top-0 h-full w-[8%] opacity-50"
           style={{
             background:
               "linear-gradient(180deg, oklch(0.95 0.03 80 / 0.7) 0%, transparent 70%)",
-            filter: "blur(4px)",
-            transform: `translateX(${mouse.x * -10}px)`,
-            transition: "transform 0.6s",
+            ...(isMobile ? {} : {
+              filter: "blur(4px)",
+              transform: `translateX(${mouse.x * -10}px)`,
+              transition: "transform 0.6s",
+            }),
           }}
         />
         {/* ripples */}
@@ -129,12 +136,12 @@ export function SceneLake() {
           </motion.div>
         ))}
 
-        {/* fireflies */}
-        <Particles count={40} color="oklch(0.92 0.12 90)" />
+        {/* fireflies — reduced on mobile */}
+        <Particles count={isMobile ? 12 : 40} color="oklch(0.92 0.12 90)" />
       </div>
 
-      {/* drifting lanterns in sky */}
-      {[
+      {/* drifting lanterns — desktop only, not worth the animation cost on mobile */}
+      {!isMobile && [
         { l: "15%", t: "30%", d: 0 },
         { l: "40%", t: "18%", d: 2 },
         { l: "78%", t: "40%", d: 1.4 },
@@ -150,13 +157,13 @@ export function SceneLake() {
             className="h-5 w-4 rounded-sm"
             style={{
               background: "linear-gradient(180deg, oklch(0.92 0.13 60) 0%, oklch(0.7 0.18 35) 100%)",
-              boxShadow: "0 0 20px oklch(0.84 0.13 50 / 0.8), 0 0 50px oklch(0.84 0.13 50 / 0.4)",
+              boxShadow: "0 0 20px oklch(0.84 0.13 50 / 0.8)",
             }}
           />
         </motion.div>
       ))}
 
-      <Petals count={18} />
+      <Petals count={isMobile ? 5 : 18} />
 
       {/* TITLE */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-6 text-center">
@@ -182,8 +189,8 @@ export function SceneLake() {
                   return (
                     <motion.span
                       key={charIdx}
-                      initial={{ opacity: 0, y: 30, filter: "blur(12px)" }}
-                      animate={{ opacity: 1, y: 0, filter: "blur(0)" }}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 1.2, delay: 0.8 + globalIdx * 0.06, ease: [0.22, 1, 0.36, 1] }}
                       className="inline-block text-gold-shine animate-shimmer"
                     >
