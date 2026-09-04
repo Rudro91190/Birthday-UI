@@ -266,14 +266,14 @@ function Index() {
             {/* Whisper 3 */}
             {mountedScenes[5] && (
               <WhisperScene
-                whisper="every memory became a word… and the words became a letter."
+                whisper="and every memory came alive… in every moving frame."
                 progress={smoothProgress}
                 start={0.42}
                 end={0.48}
               />
             )}
 
-            {/* Chapter 4: SceneLetter */}
+            {/* Chapter 4: SceneReel (Our Memory Reel) */}
             {mountedScenes[6] && (
               <Scene3DWrapper
                 progress={smoothProgress}
@@ -282,21 +282,21 @@ function Index() {
                 fadeOutStart={0.60}
                 fadeOutEnd={0.64}
               >
-                <SceneLetter />
+                <SceneReel />
               </Scene3DWrapper>
             )}
 
             {/* Whisper 4 */}
             {mountedScenes[7] && (
               <WhisperScene
-                whisper="and every word came alive… in every moving frame."
+                whisper="every memory became a word… and the words became a letter."
                 progress={smoothProgress}
                 start={0.59}
                 end={0.65}
               />
             )}
 
-            {/* Chapter 5: SceneReel (Our Memory Reel) */}
+            {/* Chapter 5: SceneLetter */}
             {mountedScenes[8] && (
               <Scene3DWrapper
                 progress={smoothProgress}
@@ -305,14 +305,14 @@ function Index() {
                 fadeOutStart={0.77}
                 fadeOutEnd={0.81}
               >
-                <SceneReel />
+                <SceneLetter />
               </Scene3DWrapper>
             )}
 
             {/* Whisper 5 */}
             {mountedScenes[9] && (
               <WhisperScene
-                whisper="and the reel ended where the wish begins…"
+                whisper="and from every written word, the quietest wish begins…"
                 progress={smoothProgress}
                 start={0.76}
                 end={0.82}

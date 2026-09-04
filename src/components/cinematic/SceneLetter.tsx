@@ -243,7 +243,7 @@ const LETTER = [
 ];
 
 /**
- * Chapter 4 — The Letter:
+ * Chapter 5 — The Letter:
  * Mobile: keepsake strip → letter paper card → lightbox
  * Desktop: letter flanked by absolutely-positioned photo panels
  */
@@ -371,7 +371,7 @@ export function SceneLetter() {
       {/* Chapter Title Header */}
       <div className="relative z-10 pt-16 sm:pt-20 text-center px-4 sm:px-6">
         <p className="text-xs font-light uppercase tracking-[0.5em] text-[var(--rose-gold)]/85">
-          Chapter Four
+          Chapter Five
         </p>
         <h2 className="mt-2.5 font-display text-[clamp(2rem,5vw,4.2rem)] font-light text-gold-shine animate-shimmer">
           The Letter

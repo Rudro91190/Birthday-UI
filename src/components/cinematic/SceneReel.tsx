@@ -219,7 +219,7 @@ export function SceneReel() {
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--rose-gold)]/30 bg-black/40 backdrop-blur-md mb-3">
           <Sparkles className="w-3.5 h-3.5 text-[var(--rose-gold)] animate-pulse" />
           <span className="font-mono text-[9px] uppercase tracking-[0.35em] text-[var(--rose-gold)]">
-            Chapter Five · The Living Reel
+            Chapter Four · The Living Reel
           </span>
         </div>
 

@@ -6,8 +6,8 @@ const CHAPTERS = [
   { label: "I · LAKE", progress: 0.04 },
   { label: "II · LIBRARY", progress: 0.20 },
   { label: "III · GALLERY", progress: 0.37 },
-  { label: "IV · LETTER", progress: 0.54 },
-  { label: "V · REEL", progress: 0.70 },
+  { label: "IV · REEL", progress: 0.54 },
+  { label: "V · LETTER", progress: 0.70 },
   { label: "VI · WISH", progress: 0.86 },
   { label: "VII · DREAM", progress: 0.96 },
 ];

@@ -67,7 +67,7 @@ export function SceneFinale() {
 
       {/* heading */}
       <div className="relative z-10 pt-24 text-center px-6">
-        <p className="text-xs font-light uppercase tracking-[0.5em] text-[var(--rose-gold)]">Chapter Four</p>
+        <p className="text-xs font-light uppercase tracking-[0.5em] text-[var(--rose-gold)]">Chapter Six</p>
         <h2 className="mt-4 font-display text-[clamp(2rem,6vw,4.5rem)] font-light text-lotus-shine">
           The Birthday Finale
         </h2>
