@@ -85,7 +85,7 @@ export function SceneFinale() {
           className="relative cursor-pointer"
           style={{ filter: "drop-shadow(0 30px 60px oklch(0.86 0.08 0 / 0.4))" }}
         >
-          <Cake blown={blown} />
+          <Cake blown={blown} isMobile={isMobile} />
         </motion.button>
 
         {/* surrounding lotuses */}
@@ -137,7 +137,7 @@ export function SceneFinale() {
   );
 }
 
-function Cake({ blown }: { blown: boolean }) {
+function Cake({ blown, isMobile = false }: { blown: boolean; isMobile?: boolean }) {
   return (
     <div className="relative" style={{ width: 260 }}>
       <svg viewBox="0 0 200 220" width="100%">
